@@ -25,9 +25,9 @@ const cacheDir = (function () {
         cacheDirPath = findCacheDir({ name: pluginName, create: true });
       } catch (e) {
         cacheDirPath = path.join(os.tmpdir(), pluginName);
-        mkdir.sync(cacheDirPath);
       }
     }
+    mkdir.sync(cacheDirPath);
     return cacheDirPath;
   }
 })();
