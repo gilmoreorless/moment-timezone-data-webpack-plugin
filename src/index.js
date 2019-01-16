@@ -1,54 +1,14 @@
-const crypto = require('crypto');
-const findCacheDir = require('find-cache-dir');
 const fs = require('fs');
-const mkdir = require('make-dir');
-const os = require('os');
-const path = require('path');
 const webpack = require('webpack');
-
-const pluginName = 'moment-timezone-data-webpack-plugin';
-
-function cacheKey(tzdata, config) {
-  return JSON.stringify({
-    version: tzdata.version,
-    zones: config.matchZones.toString(),
-    dates: [config.startYear, config.endYear],
-  });
-}
-
-const cacheDir = (function () {
-  let cacheDirPath;
-
-  return function () {
-    if (!cacheDirPath) {
-      try {
-        cacheDirPath = findCacheDir({ name: pluginName, create: true });
-      } catch (e) {
-        cacheDirPath = path.join(os.tmpdir(), pluginName);
-      }
-    }
-    mkdir.sync(cacheDirPath);
-    return cacheDirPath;
-  }
-})();
-
-function cacheFile(tzdata, config) {
-  const key = cacheKey(tzdata, config);
-  const filename = crypto.createHash('md4')
-    .update(key)
-    .digest('hex') + '.json';
-  const filepath = path.join(cacheDir(), filename);
-  return {
-    path: filepath,
-    exists: fs.existsSync(filepath),
-  };
-}
+const { createZoneMatchers, cacheFile } = require('./helpers');
 
 function filterData(tzdata, config, file) {
   const moment = require('moment-timezone/moment-timezone-utils');
   const { matchZones, startYear, endYear } = config;
   const newZonesData = tzdata.zones
-    .filter(zone => matchZones.test(zone))
+    .filter(zone =>
+      matchZones.find(matcher => matcher.test(zone.split('|')[0]))
+    )
     .map(moment.tz.unpack);
   const filteredData = moment.tz.filterLinkPack(
     {
@@ -62,11 +22,46 @@ function filterData(tzdata, config, file) {
   fs.writeFileSync(file.path, JSON.stringify(filteredData, null, 2));
 }
 
+function throwInvalid(message) {
+  throw new Error(`MomentTimezoneDataPlugin: ${message}`);
+}
+
+function validateOptions(options) {
+  const knownOptions = ['matchZones', 'startYear', 'endYear'];
+  const optionNames = Object.keys(options);
+  let usedOptions = [];
+  let unknownOptions = [];
+  optionNames.forEach(name => {
+    (knownOptions.includes(name) ? usedOptions : unknownOptions).push(name);
+  });
+
+  // Unknown options
+  if (unknownOptions.length) {
+    throwInvalid(
+      `Unknown options provided (${unknownOptions.join(', ')}). ` +
+      `Supported options are: ${knownOptions.join(', ')}.`
+    );
+  }
+
+  // At least one option required
+  if (!usedOptions.length) {
+    throwInvalid('Must provide at least one filtering option.');
+  }
+
+  // Invalid years
+  ['startYear', 'endYear'].forEach(option => {
+    if (option in options && !Number.isInteger(options[option])) {
+      throwInvalid(`Invalid option — ${option} must be an integer.`);
+    }
+  });
+}
+
 function MomentTimezoneDataPlugin(options = {}) {
-  // TODO: Actually check options
-  const matchZones = /Australia/;
-  const startYear = 2018;
-  const endYear = 2028;
+  validateOptions(options);
+
+  const startYear = options.startYear || -Infinity;
+  const endYear = options.endYear || Infinity;
+  const matchZones = createZoneMatchers(options.matchZones || /./);
 
   return new webpack.NormalModuleReplacementPlugin(
     /data\/packed\/latest\.json$/,
@@ -76,7 +71,12 @@ function MomentTimezoneDataPlugin(options = {}) {
         const tzdata = require('moment-timezone/data/packed/latest.json');
         const file = cacheFile(tzdata, config);
         if (!file.exists) {
-          filterData(tzdata, config, file);
+          try {
+            filterData(tzdata, config, file);
+          } catch (err) {
+            console.warn(err);
+            return; // Don't rewrite the request
+          }
         }
         resource.request = file.path;
       }

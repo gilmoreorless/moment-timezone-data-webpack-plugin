@@ -67,6 +67,14 @@ describe('usage', () => {
       assert.ok(linkNames(data).length === 0);
     });
 
+    it("returns no zones when a single string argument doesn't match anything", async () => {
+      const { data } = await buildWebpack({
+        matchZones: 'Troll',
+      });
+      assert.ok(zoneNames(data).length === 0);
+      assert.ok(linkNames(data).length === 0);
+    });
+
     it('filters zones matching a single regexp', async () => {
       const { data } = await buildWebpack({
         matchZones: /uu/,
@@ -91,6 +99,17 @@ describe('usage', () => {
       assert.deepEqual(zoneNames(data), [
         'America/Argentina/Salta', 'America/Argentina/San_Juan', 'America/Argentina/San_Luis',
         'Europe/Zaporozhye', 'Europe/Zurich'
+      ]);
+      assert.ok(linkNames(data).length === 0);
+    });
+
+    it('filters zones matching an array of mixed values', async () => {
+      const { data } = await buildWebpack({
+        matchZones: ['Australia/Sydney', /Argentina\/S/, 'Africa/Nairobi'],
+      });
+      assert.deepEqual(zoneNames(data), [
+        'Africa/Nairobi', 'America/Argentina/Salta', 'America/Argentina/San_Juan',
+        'America/Argentina/San_Luis', 'Australia/Sydney'
       ]);
       assert.ok(linkNames(data).length === 0);
     });

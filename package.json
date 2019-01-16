@@ -6,7 +6,7 @@
   "scripts": {
     "prebuild:example": "rm -rf example/dist/*",
     "build:example": "cd example && for cfg in config/webpack.config.*.js; do webpack --config $cfg; done && gzip --keep --force dist/*.js",
-    "test": "mocha --require intelli-espower-loader test/*.js"
+    "test": "mocha --require intelli-espower-loader test/*.test.js"
   },
   "keywords": [],
   "author": "",
