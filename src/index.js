@@ -5,16 +5,31 @@ const { createZoneMatchers, cacheFile } = require('./helpers');
 function filterData(tzdata, config, file) {
   const moment = require('moment-timezone/moment-timezone-utils');
   const { matchZones, startYear, endYear } = config;
+  let matchers = createZoneMatchers(matchZones);
+  const newLinksData = tzdata.links
+    .map(link => link.split('|'))
+    .filter(link =>
+      matchers.find(matcher => matcher.test(link[1]))
+    );
+
+  // If links exist, add the source zones to the matcher list
+  if (newLinksData.length) {
+    let linkMatchers = createZoneMatchers(
+      newLinksData.map(link => link[0])
+    );
+    matchers = matchers.concat(linkMatchers);
+  }
+
   const newZonesData = tzdata.zones
     .filter(zone =>
-      matchZones.find(matcher => matcher.test(zone.split('|')[0]))
+      matchers.find(matcher => matcher.test(zone.split('|')[0]))
     )
     .map(moment.tz.unpack);
   const filteredData = moment.tz.filterLinkPack(
     {
       version: tzdata.version,
       zones: newZonesData,
-      links: [],
+      links: newLinksData.map(link => link.join('|')),
     },
     startYear,
     endYear
@@ -61,7 +76,7 @@ function MomentTimezoneDataPlugin(options = {}) {
 
   const startYear = options.startYear || -Infinity;
   const endYear = options.endYear || Infinity;
-  const matchZones = createZoneMatchers(options.matchZones || /./);
+  const matchZones = options.matchZones || /./;
 
   return new webpack.NormalModuleReplacementPlugin(
     /data\/packed\/latest\.json$/,
