@@ -89,7 +89,7 @@ function MomentTimezoneDataPlugin(options = {}) {
           try {
             filterData(tzdata, config, file);
           } catch (err) {
-            console.warn(err);
+            console.warn(err); // eslint-disable-line no-console
             return; // Don't rewrite the request
           }
         }

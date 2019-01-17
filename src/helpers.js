@@ -74,7 +74,7 @@ const cacheDir = (function () {
     }
     mkdir.sync(cacheDirPath);
     return cacheDirPath;
-  }
+  };
 })();
 
 function cacheFile(tzdata, config) {

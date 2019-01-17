@@ -1,6 +1,6 @@
 const path = require('path');
 
-module.exports = (fileName, extraConfig = {}) => ({
+module.exports = (fileName, extraConfig = {}) => (Object.assign({
   mode: 'production',
   devtool: 'source-map',
   entry: path.resolve(__dirname, '../src/index.js'),
@@ -8,5 +8,5 @@ module.exports = (fileName, extraConfig = {}) => ({
     filename: `${fileName}.js`,
     path: path.resolve(__dirname, '../dist'),
   },
-  ...extraConfig,
-});
+  extraConfig,
+}));

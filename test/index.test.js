@@ -47,7 +47,7 @@ describe('instantiation', () => {
         startYear: 'string'
       }),
       'Invalid option — startYear must be an integer.'
-    )
+    );
   });
 });
 

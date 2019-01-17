@@ -35,7 +35,9 @@ function buildWebpack(options) {
       let data = null;
       try {
         data = JSON.parse(source.source());
-      } catch (e) {}
+      } catch (e) {
+        reject(e);
+      }
 
       resolve({ stats, module, data });
     });
