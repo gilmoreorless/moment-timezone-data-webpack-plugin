@@ -1,0 +1,9 @@
+language: node_js
+jobs:
+  include:
+    - script: yarn run lint
+      node_js: "stable"
+    - script: yarn test
+      node_js:
+        - "8"
+        - "10"
