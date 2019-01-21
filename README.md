@@ -15,6 +15,7 @@ This is a **plugin** for **webpack** which reduces **data** for **moment-timezon
     - [Installation](#installation)
     - [Configuration](#configuration)
         - [Plugin options](#plugin-options)
+    - [Version support](#version-support)
 - [Examples](#examples)
     - [All zones, with a limited date range](#all-zones-with-a-limited-date-range)
     - [All data for a specific zone](#all-data-for-a-specific-zone)
@@ -52,6 +53,8 @@ Running webpack in production mode results in the following file sizes:
 | Strip locales & tz data |   60 KiB (~5%)  |  20 KiB (~19%) |
 
 (Testing done with `webpack@4.28.3`, `moment@2.23.0`, `moment-timezone@0.5.23`.)
+
+Even if you still need all the time zones available, reducing the data to a much smaller date range can produce significant file size savings. Building the above example file with data for all zones from 2018 to 2028 produces a file size of 288KiB, or 74KiB gzipped.
 
 ### ⚠️ Make sure you know what you’re doing ❗️️
 
@@ -112,6 +115,11 @@ There are three available options to filter the time zone data. **At least one o
   * _string_ — Include only this zone name as an exact match (e.g. `'Australia/Sydney'`).
   * _regexp_ — Include zones with names matching the regular expression (e.g. `/^Australia\//`).
   * _array_ (of the above types) — Include zones matching any of the values of the array. Each value can be a string or a regular expression, which will be matched following the rules above.
+
+### Version support
+
+This plugin has been tested with and supports webpack v4. It theoretically supports older versions of webpack (as it uses built-in webpack plugins internally), but this hasn’t been tested.
+
 
 ## Examples
 
