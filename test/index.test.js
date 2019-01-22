@@ -2,6 +2,7 @@ const assert = require('power-assert');
 const del = require('del');
 const findCacheDir = require('find-cache-dir');
 const glob = require('glob');
+const moment = require('moment-timezone');
 const MomentTimezoneDataPlugin = require('../src');
 const { buildWebpack, zoneNames, linkNames, transitionRange } = require('./utils');
 
@@ -201,6 +202,15 @@ describe('usage', () => {
       });
       assert.deepEqual(zoneNames(data), ['Australia/Sydney']);
       assert.deepEqual(linkNames(data), ['Australia/Hobart']);
+    });
+
+    it("includes all zones and links when matchZones isn't provided", async () => {
+      const { data } = await buildWebpack({
+        startYear: 1700,
+        endYear: 2300,
+      });
+      const zoneCount = data.zones.length + data.links.length;
+      assert(zoneCount === moment.tz.names().length);
     });
   });
 
