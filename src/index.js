@@ -79,9 +79,9 @@ function MomentTimezoneDataPlugin(options = {}) {
   const matchZones = options.matchZones || /./;
 
   return new webpack.NormalModuleReplacementPlugin(
-    /data\/packed\/latest\.json$/,
+    /data[\\/]packed[\\/]latest\.json$/,
     resource => {
-      if (resource.context.match(/node_modules\/moment-timezone$/)) {
+      if (resource.context.match(/node_modules[\\/]moment-timezone$/)) {
         const config = { matchZones, startYear, endYear };
         const tzdata = require('moment-timezone/data/packed/latest.json');
         const file = cacheFile(tzdata, config);
