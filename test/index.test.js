@@ -212,6 +212,17 @@ describe('usage', () => {
       const zoneCount = data.zones.length + data.links.length;
       assert(zoneCount === moment.tz.names().length);
     });
+
+    it("does not include links from undefined timezones", async () => {
+      const { data } = await buildWebpack({
+        startYear: 2000
+      });
+      for (const link of data.links) {
+        const from = link.split('|')[0];
+        const matchingZone = data.zones.find(zone => zone.startsWith(from));
+        assert.notEqual(matchingZone, undefined, `'${from}' not in zones`);
+      }
+    });
   });
 
   describe('caching', () => {
