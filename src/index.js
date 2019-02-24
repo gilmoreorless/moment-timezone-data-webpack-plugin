@@ -28,8 +28,13 @@ function filterData(tzdata, config, file) {
   const filteredData = moment.tz.filterLinkPack(
     {
       version: tzdata.version,
-      zones: newZonesData,
-      links: newLinksData.map(link => link.join('|')),
+      zones: newLinksData.reduce((zones, link) => {
+        const newEntry = { ...newZonesData.find(z => z.name === link[0]) };
+        newEntry.name = link[1];
+        zones.push(newEntry);
+        return zones;
+      }, newZonesData ),
+      links: [],
     },
     startYear,
     endYear
