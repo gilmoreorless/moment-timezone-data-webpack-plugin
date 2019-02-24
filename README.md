@@ -118,7 +118,12 @@ There are three available options to filter the time zone data. **At least one o
 
 ### Version support
 
-This plugin has been tested with and supports webpack v4. It theoretically supports older versions of webpack (as it uses built-in webpack plugins internally), but this hasn’t been tested.
+This plugin has been tested with and officially supports the following dependencies:
+
+* Node.js 8 or higher
+* webpack 4
+
+It theoretically supports older versions of webpack (as it uses built-in webpack plugins internally), but this hasn’t been tested.
 
 
 ## Examples
