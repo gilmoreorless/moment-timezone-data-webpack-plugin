@@ -24,7 +24,7 @@
     "test": "mocha --require intelli-espower-loader test/*.test.js"
   },
   "dependencies": {
-    "find-cache-dir": "^2.0.0",
+    "find-cache-dir": "^3.0.0",
     "make-dir": "^3.0.0"
   },
   "peerDependencies": {
