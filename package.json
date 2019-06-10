@@ -44,5 +44,10 @@
     "power-assert": "^1.6.1",
     "webpack": "^4.28.3",
     "webpack-cli": "^3.2.0"
+  },
+  "greenkeeper": {
+    "prTitles": {
+      "basicPR": "Update ${dependency} to version ${version} :rocket:"
+    }
   }
 }

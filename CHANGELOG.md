@@ -5,7 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 ### Changed
 - Updated `make-dir` dependency to `3.0.0`.
-- Updated `find-dir` dev dependency.
+- Updated `find-cache-dir` dependency to `3.0.0`.
+- Updated `del` dev dependency.
 
 ## 1.0.3 – 2019-02-24
 ### Changed
