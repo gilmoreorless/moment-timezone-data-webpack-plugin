@@ -1,8 +1,8 @@
 # moment-timezone-data-webpack-plugin
 
-[![npm](https://img.shields.io/npm/v/moment-timezone-data-webpack-plugin.svg)](https://www.npmjs.com/package/moment-timezone-data-webpack-plugin)
-[![Build Status](https://travis-ci.org/gilmoreorless/moment-timezone-data-webpack-plugin.svg?branch=master)](https://travis-ci.org/gilmoreorless/moment-timezone-data-webpack-plugin)
-[![Greenkeeper badge](https://badges.greenkeeper.io/gilmoreorless/moment-timezone-data-webpack-plugin.svg)](https://greenkeeper.io/)
+[![npm][badge-npm-img]][badge-npm]
+[![Build Status][badge-ci-img]][badge-ci]
+[![Greenkeeper badge][badge-gk-img]][badge-gk]
 
 Oof, that’s a clunky name, but at least it’s descriptive.
 
@@ -170,6 +170,13 @@ const plugin = new MomentTimezoneDataPlugin({
 
 [MIT License © Gilmore Davidson](LICENSE)
 
+
+[badge-npm]:     https://www.npmjs.com/package/moment-timezone-data-webpack-plugin
+[badge-npm-img]: https://img.shields.io/npm/v/moment-timezone-data-webpack-plugin.svg
+[badge-ci]:      https://travis-ci.org/gilmoreorless/moment-timezone-data-webpack-plugin
+[badge-ci-img]:  https://travis-ci.org/gilmoreorless/moment-timezone-data-webpack-plugin.svg?branch=master
+[badge-gk]:      https://greenkeeper.io/
+[badge-gk-img]:  https://badges.greenkeeper.io/gilmoreorless/moment-timezone-data-webpack-plugin.svg
 
 [moment-tz]: https://momentjs.com/timezone/
 [moment-tz-filter]: http://momentjs.com/timezone/docs/#/data-utilities/filter-link-pack/
