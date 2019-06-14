@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const webpack = require('webpack');
 const { createZoneMatchers, cacheFile } = require('./helpers');
 
@@ -47,7 +48,7 @@ function throwInvalid(message) {
 }
 
 function validateOptions(options) {
-  const knownOptions = ['matchZones', 'startYear', 'endYear'];
+  const knownOptions = ['matchZones', 'startYear', 'endYear', 'cacheDir'];
   const optionNames = Object.keys(options);
   let usedOptions = [];
   let unknownOptions = [];
@@ -74,6 +75,11 @@ function validateOptions(options) {
       throwInvalid(`Invalid option — ${option} must be an integer.`);
     }
   });
+
+  // Invalid cache dir (not an absolute path)
+  if ('cacheDir' in options && !path.isAbsolute(options.cacheDir)) {
+    throwInvalid(`Provided cacheDir is not absolute: '${cacheDir}'`);
+  }
 }
 
 function MomentTimezoneDataPlugin(options = {}) {
@@ -82,6 +88,7 @@ function MomentTimezoneDataPlugin(options = {}) {
   const startYear = options.startYear || -Infinity;
   const endYear = options.endYear || Infinity;
   const matchZones = options.matchZones || /./;
+  const cacheDir = options.cacheDir || null;
 
   return new webpack.NormalModuleReplacementPlugin(
     /data[\\/]packed[\\/]latest\.json$/,
@@ -89,7 +96,7 @@ function MomentTimezoneDataPlugin(options = {}) {
       if (resource.context.match(/node_modules[\\/]moment-timezone$/)) {
         const config = { matchZones, startYear, endYear };
         const tzdata = require('moment-timezone/data/packed/latest.json');
-        const file = cacheFile(tzdata, config);
+        const file = cacheFile(tzdata, config, cacheDir);
         if (!file.exists) {
           try {
             filterData(tzdata, config, file);

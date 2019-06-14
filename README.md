@@ -115,6 +115,7 @@ There are three available options to filter the time zone data. **At least one o
   * _string_ — Include only this zone name as an exact match (e.g. `'Australia/Sydney'`).
   * _regexp_ — Include zones with names matching the regular expression (e.g. `/^Australia\//`).
   * _array_ (of the above types) — Include zones matching any of the values of the array. Each value can be a string or a regular expression, which will be matched following the rules above.
+* `cacheDir` _(string)_ — An absolute path where the generated files will be cached. If not provided, the files will be cached in an automatically-generated location.
 
 ### Version support
 

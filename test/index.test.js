@@ -7,12 +7,15 @@ const MomentTimezoneDataPlugin = require('../src');
 const { buildWebpack, zoneNames, linkNames, transitionRange } = require('./utils');
 
 describe('instantiation', () => {
+  const cacheDir = findCacheDir({ name: 'moment-timezone-data-webpack-plugin' });
+
   it('accepts valid options', () => {
     assert.doesNotThrow(
       () => new MomentTimezoneDataPlugin({
         matchZones: /Europe/,
         startYear: 2000,
         endYear: 2038,
+        cacheDir: cacheDir,
       })
     );
   });
@@ -48,6 +51,15 @@ describe('instantiation', () => {
         startYear: 'string'
       }),
       'Invalid option — startYear must be an integer.'
+    );
+  });
+
+  it('throws when called with invalid cacheDir path', () => {
+    assert.throws(
+      () => new MomentTimezoneDataPlugin({
+        matchZones: /Europe/,
+        cacheDir: 'relative/path',
+      }),
     );
   });
 });
