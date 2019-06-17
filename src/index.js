@@ -83,9 +83,13 @@ function validateOptions(options) {
     }
   });
 
-  // Invalid cache dir (not an absolute path)
-  if ('cacheDir' in options && !path.isAbsolute(options.cacheDir)) {
-    throwInvalid(`Provided cacheDir is not absolute: '${cacheDir}'`);
+  // Invalid cache dir (not a valid path)
+  if ('cacheDir' in options) {
+    try {
+      path.parse(options.cacheDir);
+    } catch (error) {
+      throwInvalid(`Provided cacheDir is an invalid path: '${options.cacheDir}'`);
+    }
   }
 }
 

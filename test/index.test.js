@@ -48,7 +48,7 @@ describe('instantiation', () => {
   it('throws when called with just non-filtering options', () => {
     assert.throws(
       () => new MomentTimezoneDataPlugin({
-        cacheDir: '/absolute/path',
+        cacheDir: cacheDir,
       }),
     );
   });
@@ -66,7 +66,7 @@ describe('instantiation', () => {
     assert.throws(
       () => new MomentTimezoneDataPlugin({
         matchZones: /Europe/,
-        cacheDir: 'relative/path',
+        cacheDir: 1,
       }),
     );
   });
