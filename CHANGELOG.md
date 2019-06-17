@@ -2,7 +2,10 @@
 All notable changes to this project will be documented in this file (the format is based on [Keep a Changelog](http://keepachangelog.com/)).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 1.1.0 – 2019-06-17
+### Added
+- New `cacheDir` option (PR #11 — thanks to @sgomes).
+
 ### Changed
 - Updated `make-dir` dependency to `3.0.0`.
 - Updated `find-cache-dir` dependency to `3.0.0`.
