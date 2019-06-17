@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const webpack = require('webpack');
 const { createZoneMatchers, cacheFile } = require('./helpers');
 
@@ -47,12 +48,19 @@ function throwInvalid(message) {
 }
 
 function validateOptions(options) {
-  const knownOptions = ['matchZones', 'startYear', 'endYear'];
+  const filteringOptions = ['matchZones', 'startYear', 'endYear'];
+  const otherOptions = ['cacheDir'];
+  const knownOptions = filteringOptions.concat(otherOptions);
   const optionNames = Object.keys(options);
-  let usedOptions = [];
+  let usedFilteringOptions = [];
   let unknownOptions = [];
   optionNames.forEach(name => {
-    (knownOptions.includes(name) ? usedOptions : unknownOptions).push(name);
+    if (!knownOptions.includes(name)) {
+      unknownOptions.push(name);
+    }
+    if (filteringOptions.includes(name)) {
+      usedFilteringOptions.push(name);
+    }
   });
 
   // Unknown options
@@ -64,7 +72,7 @@ function validateOptions(options) {
   }
 
   // At least one option required
-  if (!usedOptions.length) {
+  if (!usedFilteringOptions.length) {
     throwInvalid('Must provide at least one filtering option.');
   }
 
@@ -74,6 +82,15 @@ function validateOptions(options) {
       throwInvalid(`Invalid option — ${option} must be an integer.`);
     }
   });
+
+  // Invalid cache dir (not a valid path)
+  if ('cacheDir' in options) {
+    try {
+      path.parse(options.cacheDir);
+    } catch (error) {
+      throwInvalid(`Provided cacheDir is an invalid path: '${options.cacheDir}'`);
+    }
+  }
 }
 
 function MomentTimezoneDataPlugin(options = {}) {
@@ -82,6 +99,7 @@ function MomentTimezoneDataPlugin(options = {}) {
   const startYear = options.startYear || -Infinity;
   const endYear = options.endYear || Infinity;
   const matchZones = options.matchZones || /./;
+  const cacheDir = options.cacheDir || null;
 
   return new webpack.NormalModuleReplacementPlugin(
     /data[\\/]packed[\\/]latest\.json$/,
@@ -89,7 +107,7 @@ function MomentTimezoneDataPlugin(options = {}) {
       if (resource.context.match(/node_modules[\\/]moment-timezone$/)) {
         const config = { matchZones, startYear, endYear };
         const tzdata = require('moment-timezone/data/packed/latest.json');
-        const file = cacheFile(tzdata, config);
+        const file = cacheFile(tzdata, config, cacheDir);
         if (!file.exists) {
           try {
             filterData(tzdata, config, file);

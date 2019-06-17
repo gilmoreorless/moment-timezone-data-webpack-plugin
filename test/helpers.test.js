@@ -1,5 +1,8 @@
 const assert = require('power-assert');
-const { createZoneMatchers } = require('../src/helpers');
+const del = require('del');
+const fs = require('fs');
+const findCacheDir = require('find-cache-dir');
+const { createZoneMatchers, cacheDir } = require('../src/helpers');
 
 describe('createZoneMatchers', () => {
   const testStrings = [
@@ -52,5 +55,30 @@ describe('createZoneMatchers', () => {
   it('when arg is not a string, returns array of regexp matching toString() value', () => {
     let matchers = createZoneMatchers(1984);
     assertMatchers(matchers, 1, ['1984']);
+  });
+});
+
+describe('cacheDir', () => {
+  const defaultDir = findCacheDir({ name: 'moment-timezone-data-webpack-plugin' });
+  const customDir = findCacheDir({ name: 'custom-name' });
+
+  beforeEach(() => {
+    del.sync(defaultDir);
+    del.sync(customDir);
+  });
+
+  it('creates a new directory in an auto-generated location', () => {
+    cacheDir();
+    assert(fs.existsSync(defaultDir));
+  });
+
+  it('creates a new directory in a provided location', () => {
+    cacheDir(customDir);
+    assert(fs.existsSync(customDir));
+  });
+
+  afterEach(() => {
+    del.sync(defaultDir);
+    del.sync(customDir);
   });
 });
