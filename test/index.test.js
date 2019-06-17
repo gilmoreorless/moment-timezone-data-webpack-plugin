@@ -45,6 +45,14 @@ describe('instantiation', () => {
     );
   });
 
+  it('throws when called with just non-filtering options', () => {
+    assert.throws(
+      () => new MomentTimezoneDataPlugin({
+        cacheDir: '/absolute/path',
+      }),
+    );
+  });
+
   it('throws when called with invalid year options', () => {
     assert.throws(
       () => new MomentTimezoneDataPlugin({

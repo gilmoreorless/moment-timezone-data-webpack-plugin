@@ -48,12 +48,19 @@ function throwInvalid(message) {
 }
 
 function validateOptions(options) {
-  const knownOptions = ['matchZones', 'startYear', 'endYear', 'cacheDir'];
+  const filteringOptions = ['matchZones', 'startYear', 'endYear'];
+  const otherOptions = ['cacheDir'];
+  const knownOptions = filteringOptions.concat(otherOptions);
   const optionNames = Object.keys(options);
-  let usedOptions = [];
+  let usedFilteringOptions = [];
   let unknownOptions = [];
   optionNames.forEach(name => {
-    (knownOptions.includes(name) ? usedOptions : unknownOptions).push(name);
+    if (!knownOptions.includes(name)) {
+      unknownOptions.push(name);
+    }
+    if (filteringOptions.includes(name)) {
+      usedFilteringOptions.push(name);
+    }
   });
 
   // Unknown options
@@ -65,7 +72,7 @@ function validateOptions(options) {
   }
 
   // At least one option required
-  if (!usedOptions.length) {
+  if (!usedFilteringOptions.length) {
     throwInvalid('Must provide at least one filtering option.');
   }
 
