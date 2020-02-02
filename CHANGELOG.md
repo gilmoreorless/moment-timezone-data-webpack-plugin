@@ -1,5 +1,6 @@
 # Change Log
-All notable changes to this project will be documented in this file (the format is based on [Keep a Changelog](http://keepachangelog.com/)).
+All notable public changes to this project will be documented in this file (the format is based on [Keep a Changelog](http://keepachangelog.com/)).
+Development-only changes (e.g. updates to `devDependencies`) will not be listed here, as they don’t affect the public API.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.1.0 – 2019-06-17
@@ -9,12 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Updated `make-dir` dependency to `3.0.0`.
 - Updated `find-cache-dir` dependency to `3.0.0`.
-- Updated `del` dev dependency.
 
 ## 1.0.3 – 2019-02-24
-### Changed
-- Updated `mocha` dev dependency.
-
 ### Fixed
 - Ensure there are no links from unknown timezones (PR #6 — thanks to @sgomes).
 
