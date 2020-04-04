@@ -2,7 +2,26 @@ language: node_js
 script:
   - yarn run lint
   - yarn test
-node_js:
-  - "8"
-  - "10"
-  - "12"
+jobs:
+  include:
+    # Standard testing with newish version.
+    - os: linux
+      node_js: 8
+    - os: linux
+      node_js: 10
+    - os: linux
+      node_js: 12
+
+    # Windows support on Travis CI is experimental.
+    # The tests run just fine and the build exits with 0, but the job never
+    # seems to stop by itself and effectively hangs.
+    # - os: windows
+    #   node_js: 12
+
+    # Extra testing with an older version as a regression check.
+    - os: linux
+      node_js: 12
+      before_install:
+      - yarn add -D moment-timezone@0.5.0
+      env:
+        TEST_REGRESSION=true
