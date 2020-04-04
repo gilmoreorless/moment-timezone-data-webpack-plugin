@@ -6,7 +6,11 @@ const moment = require('moment-timezone');
 const MomentTimezoneDataPlugin = require('../src');
 const { buildWebpack, zoneNames, linkNames, transitionRange } = require('./utils');
 
-console.log(`--- Running tests with moment-timezone version ${moment.tz.version} ---`);
+const momentHasCountries = typeof moment.tz.countries === 'function';
+
+console.log(`--- Running tests with moment-timezone version ${
+  moment.tz.version
+} (has country data = ${momentHasCountries}) ---`);
 
 describe('instantiation', () => {
   const cacheDir = findCacheDir({ name: 'moment-timezone-data-webpack-plugin' });
@@ -146,17 +150,19 @@ describe('usage', () => {
       assert.deepEqual(linkNames(data), ['Europe/Vaduz']);
     });
 
-    it('filters country data based on matching zones', async () => {
-      const { data } = await buildWebpack({
-        matchZones: /z$/,
+    if (momentHasCountries) {
+      it('filters country data based on matching zones', async () => {
+        const { data } = await buildWebpack({
+          matchZones: /z$/,
+        });
+        assert.deepEqual(data.countries, [
+          'BO|America/La_Paz',
+          'CH|Europe/Zurich',
+          'DE|Europe/Zurich',
+          'LI|Europe/Zurich Europe/Vaduz',
+        ]);
       });
-      assert.deepEqual(data.countries, [
-        'BO|America/La_Paz',
-        'CH|Europe/Zurich',
-        'DE|Europe/Zurich',
-        'LI|Europe/Zurich Europe/Vaduz',
-      ]);
-    });
+    }
   });
 
   describe('date options', () => {
@@ -249,7 +255,9 @@ describe('usage', () => {
       });
       const zoneCount = data.zones.length + data.links.length;
       assert(zoneCount === moment.tz.names().length);
-      assert(data.countries.length === moment.tz.countries().length);
+      if (momentHasCountries) {
+        assert(data.countries.length === moment.tz.countries().length);
+      }
     });
 
     it("does not include links from undefined timezones", async () => {

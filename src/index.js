@@ -5,6 +5,7 @@ const { createZoneMatchers, cacheFile } = require('./helpers');
 
 function filterData(tzdata, config, file) {
   const moment = require('moment-timezone/moment-timezone-utils');
+  const momentHasCountries = Boolean(tzdata.countries); // moment-timezone >= 0.5.28
   const { matchZones, startYear, endYear } = config;
   let matchers = createZoneMatchers(matchZones);
 
@@ -40,21 +41,24 @@ function filterData(tzdata, config, file) {
   });
 
   // Find all countries that contain the matching zones.
-  const newCountryData = tzdata.countries
-    .map(country => {
-      const [name, zonesStr] = country.split('|');
-      const zones = zonesStr.split(' ');
-      const matchingZones = zones.filter(zone =>
-        matchers.find(matcher => matcher.test(zone))
-      );
-      // Manually map country data to the required format for filterLinkPack, as moment-timezone
-      // doesn't yet provide an unpack() equivalent for countries.
-      return {
-        name,
-        zones: matchingZones
-      };
-    })
-    .filter(country => country.zones.length > 0);
+  let newCountryData = [];
+  if (momentHasCountries) {
+    newCountryData = tzdata.countries
+      .map(country => {
+        const [name, zonesStr] = country.split('|');
+        const zones = zonesStr.split(' ');
+        const matchingZones = zones.filter(zone =>
+          matchers.find(matcher => matcher.test(zone))
+        );
+        // Manually map country data to the required format for filterLinkPack, as moment-timezone
+        // doesn't yet provide an unpack() equivalent for countries.
+        return {
+          name,
+          zones: matchingZones
+        };
+      })
+      .filter(country => country.zones.length > 0);
+  }
 
   // Finally, run the whole lot through moment-timezone’s inbuilt packing method.
   const filteredData = moment.tz.filterLinkPack(
