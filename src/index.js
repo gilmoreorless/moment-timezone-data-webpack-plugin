@@ -7,13 +7,15 @@ function filterData(tzdata, config, file) {
   const moment = require('moment-timezone/moment-timezone-utils');
   const { matchZones, startYear, endYear } = config;
   let matchers = createZoneMatchers(matchZones);
+
+  // Find all links that match anything in the matcher list.
   const newLinksData = tzdata.links
     .map(link => link.split('|'))
     .filter(link =>
       matchers.find(matcher => matcher.test(link[1]))
     );
 
-  // If links exist, add the source zones to the matcher list
+  // If links exist, add the links’ destination zones to the matcher list.
   if (newLinksData.length) {
     let linkMatchers = createZoneMatchers(
       newLinksData.map(link => link[0])
@@ -21,21 +23,46 @@ function filterData(tzdata, config, file) {
     matchers = matchers.concat(linkMatchers);
   }
 
+  // Find all zones that match anything in the matcher list (including link destinations).
   const newZonesData = tzdata.zones
     .filter(zone =>
       matchers.find(matcher => matcher.test(zone.split('|')[0]))
     )
     .map(moment.tz.unpack);
+
+  // Normalise links to become full copies of their destination zones.
+  // This helps to avoid bugs when links end up pointing to other links, as detailed at
+  // https://github.com/gilmoreorless/moment-timezone-data-webpack-plugin/pull/6
+  newLinksData.forEach(link => {
+    const newEntry = { ...newZonesData.find(z => z.name === link[0]) };
+    newEntry.name = link[1];
+    newZonesData.push(newEntry);
+  });
+
+  // Find all countries that contain the matching zones.
+  const newCountryData = tzdata.countries
+    .map(country => {
+      const [name, zonesStr] = country.split('|');
+      const zones = zonesStr.split(' ');
+      const matchingZones = zones.filter(zone =>
+        matchers.find(matcher => matcher.test(zone))
+      );
+      // Manually map country data to the required format for filterLinkPack, as moment-timezone
+      // doesn't yet provide an unpack() equivalent for countries.
+      return {
+        name,
+        zones: matchingZones
+      };
+    })
+    .filter(country => country.zones.length > 0);
+
+  // Finally, run the whole lot through moment-timezone’s inbuilt packing method.
   const filteredData = moment.tz.filterLinkPack(
     {
       version: tzdata.version,
-      zones: newLinksData.reduce((zones, link) => {
-        const newEntry = { ...newZonesData.find(z => z.name === link[0]) };
-        newEntry.name = link[1];
-        zones.push(newEntry);
-        return zones;
-      }, newZonesData ),
-      links: [],
+      zones: newZonesData,
+      links: [], // Deliberately empty to ensure correct link data is generated from the zone data.
+      countries: newCountryData,
     },
     startYear,
     endYear

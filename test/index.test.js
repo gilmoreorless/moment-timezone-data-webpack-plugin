@@ -145,6 +145,18 @@ describe('usage', () => {
       assert.deepEqual(zoneNames(data), ['America/La_Paz', 'Europe/Zurich']);
       assert.deepEqual(linkNames(data), ['Europe/Vaduz']);
     });
+
+    it('filters country data based on matching zones', async () => {
+      const { data } = await buildWebpack({
+        matchZones: /z$/,
+      });
+      assert.deepEqual(data.countries, [
+        'BO|America/La_Paz',
+        'CH|Europe/Zurich',
+        'DE|Europe/Zurich',
+        'LI|Europe/Zurich Europe/Vaduz',
+      ]);
+    });
   });
 
   describe('date options', () => {
@@ -237,6 +249,7 @@ describe('usage', () => {
       });
       const zoneCount = data.zones.length + data.links.length;
       assert(zoneCount === moment.tz.names().length);
+      assert(data.countries.length === moment.tz.countries().length);
     });
 
     it("does not include links from undefined timezones", async () => {
