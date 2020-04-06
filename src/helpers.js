@@ -56,7 +56,8 @@ function createZoneMatchers(matchZones) {
 function cacheKey(tzdata, config) {
   return JSON.stringify({
     version: tzdata.version,
-    zones: config.matchZones.toString(),
+    zones: String(config.matchZones),
+    countries: String(config.matchCountries),
     dates: [config.startYear, config.endYear],
   });
 }

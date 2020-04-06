@@ -58,6 +58,10 @@ function linkNames(packedData) {
   return getPackedNames(packedData.links, 1);
 }
 
+function countryCodes(packedData) {
+  return getPackedNames(packedData.countries, 0);
+}
+
 function transitionRange(packedZone) {
   const { name, untils } = moment.tz.unpack(packedZone);
   if (!untils.length) {
@@ -79,5 +83,6 @@ module.exports = {
   buildWebpack,
   zoneNames,
   linkNames,
+  countryCodes,
   transitionRange,
 };

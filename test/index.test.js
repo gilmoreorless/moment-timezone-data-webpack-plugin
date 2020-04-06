@@ -1,10 +1,10 @@
-const assert = require('power-assert');
+const assert = require('assert');
 const del = require('del');
 const findCacheDir = require('find-cache-dir');
 const glob = require('glob');
 const moment = require('moment-timezone');
 const MomentTimezoneDataPlugin = require('../src');
-const { buildWebpack, zoneNames, linkNames, transitionRange } = require('./utils');
+const { buildWebpack, zoneNames, linkNames, countryCodes, transitionRange } = require('./utils');
 
 const momentHasCountries = typeof moment.tz.countries === 'function';
 
@@ -19,6 +19,7 @@ describe('instantiation', () => {
     assert.doesNotThrow(
       () => new MomentTimezoneDataPlugin({
         matchZones: /Europe/,
+        matchCountries: /ES|FR/,
         startYear: 2000,
         endYear: 2038,
         cacheDir: cacheDir,
@@ -30,14 +31,14 @@ describe('instantiation', () => {
   it('throws when called with no arguments', () => {
     assert.throws(
       () => new MomentTimezoneDataPlugin(),
-      'Must provide at least one filtering option.'
+      /Must provide at least one filtering option./
     );
   });
 
   it('throws when called with empty options', () => {
     assert.throws(
       () => new MomentTimezoneDataPlugin({}),
-      'Must provide at least one filtering option.'
+      /Must provide at least one filtering option./
     );
   });
 
@@ -56,6 +57,7 @@ describe('instantiation', () => {
       () => new MomentTimezoneDataPlugin({
         cacheDir: cacheDir,
       }),
+      /Must provide at least one filtering option./
     );
   });
 
@@ -64,7 +66,7 @@ describe('instantiation', () => {
       () => new MomentTimezoneDataPlugin({
         startYear: 'string'
       }),
-      'Invalid option — startYear must be an integer.'
+      /Invalid option — startYear must be an integer./
     );
   });
 
@@ -74,6 +76,7 @@ describe('instantiation', () => {
         matchZones: /Europe/,
         cacheDir: 1,
       }),
+      /Provided cacheDir is an invalid path: '1'/
     );
   });
 });
@@ -163,6 +166,93 @@ describe('usage', () => {
         ]);
       });
     }
+  });
+
+  describe('matchCountries option', () => {
+    if (momentHasCountries) {
+      it('filters zones for a country matching a single string (exact match)', async () => {
+        const { data } = await buildWebpack({
+          matchCountries: 'BA',
+        });
+        assert.deepEqual(countryCodes(data), ['BA']);
+        assert.deepEqual(zoneNames(data), ['Europe/Belgrade']);
+        assert.deepEqual(linkNames(data), ['Europe/Sarajevo']);
+      });
+
+      it("returns no zones when a single string argument doesn't match any country", async () => {
+        const { data } = await buildWebpack({
+          matchCountries: 'ZX',
+        });
+        assert.ok(countryCodes(data).length === 0);
+        assert.ok(zoneNames(data).length === 0);
+        assert.ok(linkNames(data).length === 0);
+      });
+
+      it('filters zones for a country matching a single regexp', async () => {
+        const { data } = await buildWebpack({
+          matchCountries: /^Z/,
+        });
+        assert.deepEqual(countryCodes(data), ['ZA', 'ZM', 'ZW']);
+        assert.deepEqual(zoneNames(data), ['Africa/Johannesburg', 'Africa/Maputo']);
+        assert.deepEqual(linkNames(data), ['Africa/Harare', 'Africa/Lusaka']);
+      });
+
+      it('filters zones for countries matching an array of strings (exact match)', async () => {
+        const { data } = await buildWebpack({
+          // 'A' should not do any partial matching of codes
+          matchCountries: ['MO', 'CH', 'A'],
+        });
+        assert.deepEqual(countryCodes(data), ['CH', 'MO']);
+        assert.deepEqual(zoneNames(data), ['Asia/Macau', 'Europe/Zurich']);
+        assert.ok(linkNames(data).length === 0);
+      });
+
+      it('filters zones for countries matching an array of regexps', async () => {
+        const { data } = await buildWebpack({
+          matchCountries: [/^q/i, /D[AEIOU]/],
+        });
+        assert.deepEqual(countryCodes(data), ['DE', 'DO', 'QA']);
+        assert.deepEqual(zoneNames(data), [
+          'America/Santo_Domingo', 'Asia/Qatar',
+          'Europe/Berlin', 'Europe/Zurich',
+        ]);
+        assert.deepEqual(linkNames(data), ['Europe/Busingen']);
+      });
+
+      it('filters zones for countries matching an array of mixed values', async () => {
+        const { data } = await buildWebpack({
+          matchCountries: [/B$/, 'AZ'],
+        });
+        assert.deepEqual(countryCodes(data), ['AZ', 'BB', 'GB', 'LB', 'SB']);
+        assert.deepEqual(zoneNames(data), [
+          'America/Barbados', 'Asia/Baku', 'Asia/Beirut',
+          'Europe/London', 'Pacific/Guadalcanal',
+        ]);
+        assert.ok(linkNames(data).length === 0);
+      });
+
+      it('returns only zones matching matchCountries AND matchZones', async () => {
+        const { data } = await buildWebpack({
+          matchCountries: 'AU',
+          matchZones: /\/\w{5}$/, // 5-letter city name
+        });
+        assert.deepEqual(countryCodes(data), ['AU']);
+        assert.deepEqual(zoneNames(data), ['Australia/Eucla', 'Australia/Perth']);
+        assert.ok(linkNames(data).length === 0);
+      });
+    }
+
+    // TODO: How to mimic data loading failure in this test?
+    it.skip('throws when using matchCountries and moment-timezone has no country data', () => {
+      assert.throws(
+        async () => {
+          await buildWebpack({
+            matchCountries: 'AU',
+          });
+        },
+        /The 'matchCountries' option can only work with moment-timezone 0.5.28 or later./
+      );
+    });
   });
 
   describe('date options', () => {
