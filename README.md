@@ -19,8 +19,10 @@ This is a **plugin** for **webpack** which reduces **data** for **moment-timezon
 - [Examples](#examples)
     - [All zones, with a limited date range](#all-zones-with-a-limited-date-range)
     - [All data for a specific zone](#all-data-for-a-specific-zone)
+    - [All data for a specific country](#all-data-for-a-specific-country)
     - [Limited data for a set of zones (single regular expression)](#limited-data-for-a-set-of-zones-single-regular-expression)
     - [Limited data for a set of zones (array of values)](#limited-data-for-a-set-of-zones-array-of-values)
+    - [Limited data for a set of countries](#limited-data-for-a-set-of-countries)
 - [License](#license)
 
 ## Why is this needed?
@@ -45,12 +47,12 @@ What if you only need the default English locale, and time zone data for Austral
 
 Running webpack in production mode results in the following file sizes:
 
-| [Configuration](example/config) | Raw size | Gzipped |
-|---|---|---|
-| Default                 | 1164 KiB        | 105 KiB |
-| Strip locales           |  959 KiB (~82%) |  56 KiB (~53%) |
-| Strip tz data           |  265 KiB (~23%) |  69 KiB (~66%) |
-| Strip locales & tz data |   60 KiB (~5%)  |  20 KiB (~19%) |
+| [Configuration](example/config) | Raw size       | Gzipped       |
+| ------------------------------- | -------------- | ------------- |
+| Default                         | 1164 KiB       | 105 KiB       |
+| Strip locales                   | 959 KiB (~82%) | 56 KiB (~53%) |
+| Strip tz data                   | 265 KiB (~23%) | 69 KiB (~66%) |
+| Strip locales & tz data         | 60 KiB (~5%)   | 20 KiB (~19%) |
 
 (Testing done with `webpack@4.28.3`, `moment@2.23.0`, `moment-timezone@0.5.23`.)
 
@@ -67,7 +69,7 @@ For example, if you know **_for certain_** that your web site/application...
 2. ...will never deal with future dates & times beyond a certain point (e.g. details of a specific event).
     * It’s (relatively) safe to remove any data beyond that date (using the [`endYear` option][options]).
 3. ...will only deal with a fixed set of time zones (e.g. rendering times relative to a set of physical buildings in a single country).
-    * It’s safe to keep only the data required for those zones (using the [`matchZones` option][options]).
+    * It’s safe to keep only the data required for those zones (using the [`matchZones` and/or `matchCountries` options][options]).
 
 However, if you’re allowing users to choose their time zone preference — with no theoretical limit on the range of dates you’ll handle — then you’re going to need all the data you can get.
 
@@ -107,7 +109,7 @@ module.exports = {
 
 #### Plugin options
 
-There are three available options to filter the time zone data. **At least one option** must be provided.
+There are four available options to filter the time zone data. **At least one option** must be provided.
 
 * `startYear` _(integer)_ — Only include data from this year onwards.
 * `endYear` _(integer)_ — Only include data up to (and including) this year.
@@ -115,6 +117,15 @@ There are three available options to filter the time zone data. **At least one o
   * _string_ — Include only this zone name as an exact match (e.g. `'Australia/Sydney'`).
   * _regexp_ — Include zones with names matching the regular expression (e.g. `/^Australia\//`).
   * _array_ (of the above types) — Include zones matching any of the values of the array. Each value can be a string or a regular expression, which will be matched following the rules above.
+* `matchCountries` — Only include data for time zones associated with specific countries, as determined by Moment Timezone’s [`zonesForCountry()`][moment-tz-zfc] API. `matchCountries` works with [ISO 3166 2-letter country codes][iso3166], and can be any of these types:
+  * _string_ — Include zones for this country code as an exact match (e.g. `'AU'`).
+  * _regexp_ — Include zones for country code matching the regular expression (e.g. `/^A|NZ/`).
+  * _array_ (of the above types) — Include zones for country codes matching any of the values of the array. Each value can be a string or a regular expression, which will be matched following the rules above.
+
+**NOTE:** The `matchCountries` option will only work when used with `moment-timezone` version `0.5.28` or later. If this option is used with a non-compliant version of `moment-timezone`, an error will be thrown.
+
+All filtering options are **AND** (a.k.a. conjunction) filters — that is, they become more restrictive as each one is applied. Only zone data that match **all** the provided filters will be added to the final output.
+For this reason, it’s probably safer to provide only one of `matchZones` or `matchCountries`; providing both is allowed, but you may not get the results you expect.
 
 There is also one non-filtering option that can be provided to configure other behaviour.
 
@@ -150,6 +161,15 @@ const plugin = new MomentTimezoneDataPlugin({
 });
 ```
 
+### All data for a specific country
+
+```js
+const plugin = new MomentTimezoneDataPlugin({
+  // Includes 'Pacific/Auckland' and 'Pacific/Chatham'
+  matchCountries: 'NZ',
+});
+```
+
 ### Limited data for a set of zones (single regular expression)
 
 ```js
@@ -170,6 +190,16 @@ const plugin = new MomentTimezoneDataPlugin({
 });
 ```
 
+### Limited data for a set of countries
+
+```js
+const plugin = new MomentTimezoneDataPlugin({
+  matchCountries: ['US', 'CA'],
+  startYear: 2000,
+  endYear: 2030,
+});
+```
+
 ## License
 
 [MIT License © Gilmore Davidson](LICENSE)
@@ -182,8 +212,10 @@ const plugin = new MomentTimezoneDataPlugin({
 [badge-gk]:      https://greenkeeper.io/
 [badge-gk-img]:  https://badges.greenkeeper.io/gilmoreorless/moment-timezone-data-webpack-plugin.svg
 
+[iso3166]: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 [moment-tz]: https://momentjs.com/timezone/
 [moment-tz-filter]: http://momentjs.com/timezone/docs/#/data-utilities/filter-link-pack/
+[moment-tz-zfc]: https://momentjs.com/timezone/docs/#/using-timezones/getting-country-zones/
 [moment-webpack]: https://github.com/iamakulov/moment-locales-webpack-plugin
 [npm]: https://www.npmjs.com/
 [options]: #plugin-options
