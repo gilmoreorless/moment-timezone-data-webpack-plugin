@@ -8,7 +8,8 @@ const { buildWebpack, zoneNames, linkNames, countryCodes, transitionRange } = re
 
 const momentHasCountries = typeof moment.tz.countries === 'function';
 
-console.log(`--- Running tests with moment-timezone version ${
+console.log(`
+--- Running tests with moment-timezone version ${
   moment.tz.version
 } (has country data = ${momentHasCountries}) ---`);
 
@@ -16,14 +17,17 @@ describe('instantiation', () => {
   const cacheDir = findCacheDir({ name: 'moment-timezone-data-webpack-plugin' });
 
   it('accepts valid options', () => {
+    const options = {
+      matchZones: /Europe/,
+      startYear: 2000,
+      endYear: 2038,
+      cacheDir: cacheDir,
+    };
+    if (momentHasCountries) {
+      options.matchCountries = /ES|FR/;
+    }
     assert.doesNotThrow(
-      () => new MomentTimezoneDataPlugin({
-        matchZones: /Europe/,
-        matchCountries: /ES|FR/,
-        startYear: 2000,
-        endYear: 2038,
-        cacheDir: cacheDir,
-      })
+      () => new MomentTimezoneDataPlugin(options)
     );
   });
 
@@ -242,17 +246,18 @@ describe('usage', () => {
       });
     }
 
-    // TODO: How to mimic data loading failure in this test?
-    it.skip('throws when using matchCountries and moment-timezone has no country data', () => {
-      assert.throws(
-        async () => {
-          await buildWebpack({
-            matchCountries: 'AU',
-          });
-        },
-        /The 'matchCountries' option can only work with moment-timezone 0.5.28 or later./
-      );
-    });
+    if (!momentHasCountries && assert.rejects !== undefined) {
+      it('throws when using matchCountries and moment-timezone has no country data', async () => {
+        await assert.rejects(
+          async () => {
+            await buildWebpack({
+              matchCountries: 'AU',
+            });
+          },
+          /The matchCountries option can only work with moment-timezone 0.5.28 or later./
+        );
+      });
+    }
   });
 
   describe('date options', () => {

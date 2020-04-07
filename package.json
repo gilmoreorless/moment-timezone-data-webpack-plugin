@@ -40,7 +40,7 @@
     "mocha": "^7.0.1",
     "moment": "^2.23.0",
     "moment-locales-webpack-plugin": "^1.0.7",
-    "moment-timezone": "^0.5.23",
+    "moment-timezone": "^0.5.28",
     "power-assert": "^1.6.1",
     "webpack": "^4.28.3",
     "webpack-cli": "^3.2.0"

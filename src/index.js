@@ -13,13 +13,6 @@ function filterData(tzdata, config, file) {
   let countryZoneMatchers = [/./];
 
   if (matchCountries) {
-    if (!momentHasCountries) {
-      throwInvalid(
-        'The matchCountries option can only work with moment-timezone 0.5.28 or later. ' +
-        `You're using moment-timezone version ${moment.tz.version}`
-      );
-    }
-
     // TODO: Rename createZoneMatchers as it's more generic than that
     countryCodeMatchers = createZoneMatchers(matchCountries);
     const countryZones = tzdata.countries
@@ -140,6 +133,14 @@ function validateOptions(options) {
   // At least one option required
   if (!usedFilteringOptions.length) {
     throwInvalid('Must provide at least one filtering option.');
+  }
+
+  // Don't allow matchCountries when the data doesn't support it
+  if (options.matchCountries !== undefined) {
+    const tzdata = require('moment-timezone/data/packed/latest.json');
+    if (!tzdata.countries) {
+      throwInvalid('The matchCountries option can only work with moment-timezone 0.5.28 or later.');
+    }
   }
 
   // Invalid years
