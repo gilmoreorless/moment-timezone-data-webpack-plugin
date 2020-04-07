@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const { createZoneMatchers, cacheFile } = require('./helpers');
+const { createZoneMatchers, cacheFile, flatMap } = require('./helpers');
 
 function filterData(tzdata, config, file) {
   const moment = require('moment-timezone/moment-timezone-utils');
@@ -15,14 +15,16 @@ function filterData(tzdata, config, file) {
   if (matchCountries) {
     // TODO: Rename createZoneMatchers as it's more generic than that
     countryCodeMatchers = createZoneMatchers(matchCountries);
-    const countryZones = tzdata.countries
+    const countryCodes = tzdata.countries
       .map(country => country.split('|'))
       .filter(country =>
         countryCodeMatchers.find(matcher => matcher.test(country[0]))
-      )
-      .flatMap(country => country[1].split(' ').filter(zone =>
+      );
+    const countryZones = flatMap(countryCodes, country =>
+      country[1].split(' ').filter(zone =>
         matchers.find(matcher => matcher.test(zone))
-      ));
+      )
+    );
     countryZoneMatchers = createZoneMatchers(countryZones);
   }
 

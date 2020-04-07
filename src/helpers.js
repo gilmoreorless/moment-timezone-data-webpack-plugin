@@ -15,6 +15,29 @@ if (!RegExp.escape) {
 }
 
 /**
+ * A rough equivalent of Array.prototype.flatMap, which is Node >= 11 only.
+ * This isn't a spec-compliant polyfill, just a small helper for my
+ * specific use cases.
+ */
+function flatMap(arr, mapper) {
+  if (typeof arr.flatMap === 'function') {
+    return arr.flatMap(mapper);
+  }
+  let ret = [];
+  arr.forEach((...args) => {
+    let result = mapper.call(this, ...args);
+    if (Array.isArray(result)) {
+      for (let thing of result) {
+        ret.push(thing);
+      }
+    } else {
+      ret.push(result);
+    }
+  });
+  return ret;
+}
+
+/**
  * Create regexps for matching zone names.
  * Returns an array of regexps matching the values of `matchZones`:
  * - createZoneMatchers(string) => [RegExpToMatchString]
@@ -102,6 +125,7 @@ function cacheFile(tzdata, config, cacheDirPath) {
 module.exports = {
   pluginName,
   createZoneMatchers,
+  flatMap,
   cacheDir,
   cacheFile,
 };
