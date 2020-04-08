@@ -3,6 +3,12 @@ All notable public changes to this project will be documented in this file (the 
 Development-only changes (e.g. updates to `devDependencies`) will not be listed here, as they don’t affect the public API.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## _Unreleased_
+### Added
+- Support `countries` data for `moment-timezone` versions `0.5.28` and later (#22).
+    - Filter `countries` list based on matching zones.
+    - New `matchCountries` filtering option to select all zones for a given set of countries.
+
 ## 1.1.0 – 2019-06-17
 ### Added
 - New `cacheDir` option (PR #11 — thanks to @sgomes).
