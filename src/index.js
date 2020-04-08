@@ -3,7 +3,7 @@ const path = require('path');
 const webpack = require('webpack');
 const { createZoneMatchers, cacheFile, flatMap } = require('./helpers');
 
-function filterData(tzdata, config, file) {
+function filterData(tzdata, config) {
   const moment = require('moment-timezone/moment-timezone-utils');
   const momentHasCountries = Boolean(tzdata.countries); // moment-timezone >= 0.5.28
   const { matchZones, matchCountries, startYear, endYear } = config;
@@ -101,7 +101,7 @@ function filterData(tzdata, config, file) {
     startYear,
     endYear
   );
-  fs.writeFileSync(file.path, JSON.stringify(filteredData, null, 2));
+  return filteredData;
 }
 
 function throwInvalid(message) {
@@ -180,7 +180,8 @@ function MomentTimezoneDataPlugin(options = {}) {
         const file = cacheFile(tzdata, config, cacheDir);
         if (!file.exists) {
           try {
-            filterData(tzdata, config, file);
+            const filteredData = filterData(tzdata, config, file);
+            fs.writeFileSync(file.path, JSON.stringify(filteredData, null, 2));
           } catch (err) {
             console.warn(err); // eslint-disable-line no-console
             return; // Don't rewrite the request
@@ -193,3 +194,5 @@ function MomentTimezoneDataPlugin(options = {}) {
 }
 
 module.exports = MomentTimezoneDataPlugin;
+// Exported for testing purposes only
+module.exports.filterData = filterData;
