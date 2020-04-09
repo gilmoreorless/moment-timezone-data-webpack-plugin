@@ -1,20 +1,19 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const { createZoneMatchers, cacheFile, flatMap } = require('./helpers');
+const { createMatchers, cacheFile, flatMap } = require('./helpers');
 
 function filterData(tzdata, config) {
   const moment = require('moment-timezone/moment-timezone-utils');
   const momentHasCountries = Boolean(tzdata.countries); // moment-timezone >= 0.5.28
   const { matchZones, matchCountries, startYear, endYear } = config;
 
-  let matchers = createZoneMatchers(matchZones);
+  let matchers = createMatchers(matchZones);
   let countryCodeMatchers = [/./];
   let countryZoneMatchers = [/./];
 
   if (matchCountries) {
-    // TODO: Rename createZoneMatchers as it's more generic than that
-    countryCodeMatchers = createZoneMatchers(matchCountries);
+    countryCodeMatchers = createMatchers(matchCountries);
     const countryCodes = tzdata.countries
       .map(country => country.split('|'))
       .filter(country =>
@@ -25,7 +24,7 @@ function filterData(tzdata, config) {
         matchers.find(matcher => matcher.test(zone))
       )
     );
-    countryZoneMatchers = createZoneMatchers(countryZones);
+    countryZoneMatchers = createMatchers(countryZones);
   }
 
   // Find all links that match anything in the matcher list.
@@ -39,8 +38,8 @@ function filterData(tzdata, config) {
 
   // If links exist, add the links’ destination zones to the matcher list.
   if (newLinksData.length) {
-    // TODO: De-duplicate the list of link sources before passing to createZoneMatchers
-    let linkMatchers = createZoneMatchers(
+    // TODO: De-duplicate the list of link sources before passing to createMatchers
+    let linkMatchers = createMatchers(
       newLinksData.map(link => link[0])
     );
     matchers = matchers.concat(linkMatchers);

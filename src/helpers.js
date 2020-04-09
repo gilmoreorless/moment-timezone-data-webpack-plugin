@@ -16,8 +16,7 @@ if (!RegExp.escape) {
 
 /**
  * A rough equivalent of Array.prototype.flatMap, which is Node >= 11 only.
- * This isn't a spec-compliant polyfill, just a small helper for my
- * specific use cases.
+ * This isn't a spec-compliant polyfill, just a small helper for my specific use cases.
  */
 function flatMap(arr, mapper) {
   if (typeof arr.flatMap === 'function') {
@@ -39,13 +38,13 @@ function flatMap(arr, mapper) {
 
 /**
  * Create regexps for matching zone names.
- * Returns an array of regexps matching the values of `matchZones`:
- * - createZoneMatchers(string) => [RegExpToMatchString]
- * - createZoneMatchers(RegExp) => [RegExp]
- * - createZoneMatchers([RegExp, RegExp, ...]) => [RegExp, RegExp, ...]
- * - createZoneMatchers([string, string, ...]) => [RegExpMatchingAllStrings]
+ * Returns an array of regexps matching the values of `matchZones` or `matchCountries`:
+ * - createMatchers(string) => [RegExpToMatchString]
+ * - createMatchers(RegExp) => [RegExp]
+ * - createMatchers([RegExp, RegExp, ...]) => [RegExp, RegExp, ...]
+ * - createMatchers([string, string, ...]) => [RegExpMatchingAllStrings]
  */
-function createZoneMatchers(matchZones) {
+function createMatchers(matchItems) {
   const exactRegExp = (pattern) => new RegExp('^(?:' + pattern + ')$');
   const arrayRegExp = (arr) => exactRegExp(
     arr.map(value =>
@@ -53,19 +52,19 @@ function createZoneMatchers(matchZones) {
     ).join('|')
   );
 
-  if (matchZones instanceof RegExp) {
-    return [matchZones];
+  if (matchItems instanceof RegExp) {
+    return [matchItems];
   }
-  if (Array.isArray(matchZones)) {
-    const hasRegExp = matchZones.find(mz => mz instanceof RegExp);
+  if (Array.isArray(matchItems)) {
+    const hasRegExp = matchItems.find(mz => mz instanceof RegExp);
     // Quick shortcut — combine array of strings into a single regexp
     if (!hasRegExp) {
-      return [arrayRegExp(matchZones)];
+      return [arrayRegExp(matchItems)];
     }
     // Find all string values and combine them
     let ret = [];
     let strings = [];
-    matchZones.forEach(mz => {
+    matchItems.forEach(mz => {
       (mz instanceof RegExp ? ret : strings).push(mz);
     });
     if (strings.length) {
@@ -73,7 +72,7 @@ function createZoneMatchers(matchZones) {
     }
     return ret;
   }
-  return [exactRegExp(RegExp.escape(matchZones.toString()))];
+  return [exactRegExp(RegExp.escape(matchItems.toString()))];
 }
 
 function cacheKey(tzdata, config) {
@@ -124,7 +123,7 @@ function cacheFile(tzdata, config, cacheDirPath) {
 
 module.exports = {
   pluginName,
-  createZoneMatchers,
+  createMatchers,
   flatMap,
   cacheDir,
   cacheFile,
