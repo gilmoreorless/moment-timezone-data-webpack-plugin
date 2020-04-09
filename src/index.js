@@ -1,14 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const { createMatchers, cacheFile, flatMap } = require('./helpers');
+const { createMatchers, anyMatch, cacheFile, flatMap } = require('./helpers');
 
 function filterData(tzdata, config) {
   const moment = require('moment-timezone/moment-timezone-utils');
   const momentHasCountries = Boolean(tzdata.countries); // moment-timezone >= 0.5.28
   const { matchZones, matchCountries, startYear, endYear } = config;
 
-  let matchers = createMatchers(matchZones);
+  let zoneMatchers = createMatchers(matchZones);
   let countryCodeMatchers = [/./];
   let countryZoneMatchers = [/./];
 
@@ -16,13 +16,9 @@ function filterData(tzdata, config) {
     countryCodeMatchers = createMatchers(matchCountries);
     const countryCodes = tzdata.countries
       .map(country => country.split('|'))
-      .filter(country =>
-        countryCodeMatchers.find(matcher => matcher.test(country[0]))
-      );
+      .filter(country => anyMatch(country[0], countryCodeMatchers));
     const countryZones = flatMap(countryCodes, country =>
-      country[1].split(' ').filter(zone =>
-        matchers.find(matcher => matcher.test(zone))
-      )
+      country[1].split(' ').filter(zone => anyMatch(zone, zoneMatchers))
     );
     countryZoneMatchers = createMatchers(countryZones);
   }
@@ -31,10 +27,7 @@ function filterData(tzdata, config) {
   // TODO: Optimise - shortcut when initial matchZones/matchCountries args are empty
   const newLinksData = tzdata.links
     .map(link => link.split('|'))
-    .filter(link =>
-      matchers.find(matcher => matcher.test(link[1])) &&
-      countryZoneMatchers.find(matcher => matcher.test(link[1]))
-    );
+    .filter(link => anyMatch(link[1], zoneMatchers, countryZoneMatchers));
 
   // If links exist, add the links’ destination zones to the matcher list.
   if (newLinksData.length) {
@@ -42,18 +35,14 @@ function filterData(tzdata, config) {
     let linkMatchers = createMatchers(
       newLinksData.map(link => link[0])
     );
-    matchers = matchers.concat(linkMatchers);
+    zoneMatchers = zoneMatchers.concat(linkMatchers);
   }
 
   // Find all zones that match anything in the matcher list (including link destinations).
   const newZonesData = tzdata.zones
     .filter(zone => {
       const zoneName = zone.split('|')[0];
-      return (
-        // TODO: Clean up all these repetitive .find() matcher tests
-        matchers.find(matcher => matcher.test(zoneName)) &&
-        countryZoneMatchers.find(matcher => matcher.test(zoneName))
-      );
+      return anyMatch(zoneName, zoneMatchers, countryZoneMatchers);
     })
     .map(moment.tz.unpack);
 
@@ -73,9 +62,7 @@ function filterData(tzdata, config) {
       .map(country => {
         const [name, zonesStr] = country.split('|');
         const zones = zonesStr.split(' ');
-        const matchingZones = zones.filter(zone =>
-          matchers.find(matcher => matcher.test(zone))
-        );
+        const matchingZones = zones.filter(zone => anyMatch(zone, zoneMatchers));
         // Manually map country data to the required format for filterLinkPack, as moment-timezone
         // doesn't yet provide an unpack() equivalent for countries.
         return {
@@ -85,7 +72,7 @@ function filterData(tzdata, config) {
       })
       .filter(country =>
         country.zones.length > 0 &&
-        countryCodeMatchers.find(matcher => matcher.test(country.name))
+        anyMatch(country.name, countryCodeMatchers)
       );
   }
 

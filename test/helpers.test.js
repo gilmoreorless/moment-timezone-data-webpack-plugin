@@ -2,7 +2,7 @@ const assert = require('power-assert');
 const del = require('del');
 const fs = require('fs');
 const findCacheDir = require('find-cache-dir');
-const { createMatchers, cacheDir } = require('../src/helpers');
+const { createMatchers, anyMatch, cacheDir } = require('../src/helpers');
 
 describe('createMatchers', () => {
   const testStrings = [
@@ -56,6 +56,27 @@ describe('createMatchers', () => {
     let matchers = createMatchers(1984);
     assertMatchers(matchers, 1, ['1984']);
   });
+});
+
+describe('anyMatch', () => {
+  const item = 'ABC';
+  const argList = [
+    // [name, matchers, result]
+    ['missing', undefined, true],
+    ['empty', [], true],
+    ['single RegExp', [/^A/], true],
+    ['many RegExps', [/^Z/, /\d/, /c$/i], true],
+    ['non-matching RegExps', [/^Z/, /\d/, /[D-H]/], false],
+  ];
+
+  for (let [name1, arg1, result1] of argList) {
+    for (let [name2, arg2, result2] of argList) {
+      let expected = result1 && result2;
+      it(`returns ${expected} with 1st matcher = ${name1}, 2nd matchers = ${name2}`, () => {
+        assert(anyMatch(item, arg1, arg2) === expected);
+      });
+    }
+  }
 });
 
 describe('cacheDir', () => {

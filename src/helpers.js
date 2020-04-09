@@ -75,6 +75,24 @@ function createMatchers(matchItems) {
   return [exactRegExp(RegExp.escape(matchItems.toString()))];
 }
 
+/**
+ * Return `true` if `item` matches any of the RegExps in an array of matchers.
+ * If optional `extraMatchers` array is provided, `item` must match BOTH sets of matchers.
+ * If either array is empty, it's counted as matching everything.
+ */
+function anyMatch(item, regExpMatchers, extraMatchers) {
+  if (extraMatchers !== undefined) {
+    return (
+      anyMatch(item, regExpMatchers) &&
+      anyMatch(item, extraMatchers)
+    );
+  }
+  if (!regExpMatchers || !regExpMatchers.length) {
+    return true;
+  }
+  return regExpMatchers.some(matcher => matcher.test(item));
+}
+
 function cacheKey(tzdata, config) {
   return JSON.stringify({
     version: tzdata.version,
@@ -123,8 +141,9 @@ function cacheFile(tzdata, config, cacheDirPath) {
 
 module.exports = {
   pluginName,
-  createMatchers,
   flatMap,
+  createMatchers,
+  anyMatch,
   cacheDir,
   cacheFile,
 };
