@@ -10,6 +10,8 @@ function filterData(tzdata, config) {
   const hasMatchCountries = matchCountries != null;
   const hasMatchZones = matchZones != null;
 
+  let { version, zones } = tzdata;
+
   // Unpack necessary data.
   // "America/Anchorage|US/Alaska" -> ["America/Anchorage", "US/Alaska"]
   let links = tzdata.links.map(link => link.split('|'));
@@ -43,20 +45,27 @@ function filterData(tzdata, config) {
   }
 
   // Find all zones that match anything in the matcher list (including link destinations).
-  const newZonesData = tzdata.zones
+  const zoneMap = new Map();
+  zones = zones
     .filter(zone => {
       const zoneName = zone.split('|')[0];
       return anyMatch(zoneName, zoneMatchers, countryZoneMatchers);
     })
-    .map(moment.tz.unpack);
+    .map(zone => {
+      const unpacked = moment.tz.unpack(zone);
+      zoneMap.set(unpacked.name, unpacked);
+      return unpacked;
+    });
 
   // Normalise links to become full copies of their destination zones.
   // This helps to avoid bugs when links end up pointing to other links, as detailed at
   // https://github.com/gilmoreorless/moment-timezone-data-webpack-plugin/pull/6
   links.forEach(link => {
-    const newEntry = { ...newZonesData.find(z => z.name === link[0]) };
-    newEntry.name = link[1];
-    newZonesData.push(newEntry);
+    const linkClone = {
+      ...zoneMap.get(link[0]),
+      name: link[1],
+    };
+    zones.push(linkClone);
   });
 
   // Find all countries that contain the matching zones.
@@ -83,8 +92,8 @@ function filterData(tzdata, config) {
   // Finally, run the whole lot through moment-timezone’s inbuilt packing method.
   const filteredData = moment.tz.filterLinkPack(
     {
-      version: tzdata.version,
-      zones: newZonesData,
+      version,
+      zones,
       links: [], // Deliberately empty to ensure correct link data is generated from the zone data.
       countries: newCountryData,
     },
