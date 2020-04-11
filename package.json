@@ -21,7 +21,8 @@
     "prebuild:example": "rm -rf example/dist/*",
     "build:example": "cd example && for cfg in config/webpack.config.*.js; do webpack --config $cfg; done && gzip --keep --force dist/*.js",
     "lint": "eslint example src test",
-    "test": "mocha --require intelli-espower-loader test/*.test.js"
+    "test": "mocha --require intelli-espower-loader test/*.test.js",
+    "test:performance": "node test/performance.js"
   },
   "dependencies": {
     "find-cache-dir": "^3.0.0",

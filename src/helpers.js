@@ -16,8 +16,7 @@ if (!RegExp.escape) {
 
 /**
  * A rough equivalent of Array.prototype.flatMap, which is Node >= 11 only.
- * This isn't a spec-compliant polyfill, just a small helper for my
- * specific use cases.
+ * This isn't a spec-compliant polyfill, just a small helper for my specific use cases.
  */
 function flatMap(arr, mapper) {
   if (typeof arr.flatMap === 'function') {
@@ -38,14 +37,31 @@ function flatMap(arr, mapper) {
 }
 
 /**
- * Create regexps for matching zone names.
- * Returns an array of regexps matching the values of `matchZones`:
- * - createZoneMatchers(string) => [RegExpToMatchString]
- * - createZoneMatchers(RegExp) => [RegExp]
- * - createZoneMatchers([RegExp, RegExp, ...]) => [RegExp, RegExp, ...]
- * - createZoneMatchers([string, string, ...]) => [RegExpMatchingAllStrings]
+ * Get all unique values in an array or string.
+ * unique([1, 2, 3, 1, 5, 2, 4]) -> [1, 2, 3, 5, 4]
+ * unique('this is a string') -> ['t', 'h', 'i', 's', ' ', 'a', 'r', 'n', 'g']
  */
-function createZoneMatchers(matchZones) {
+function unique(items) {
+  if (!Array.isArray(items) && typeof items !== 'string') {
+    return [];
+  }
+  return Array.from(new Set(items));
+}
+
+/**
+ * Create regexps for matching zone names.
+ * Returns an array of regexps matching the values of `matchZones` or `matchCountries`:
+ * - createMatchers(undefined) => [/.?/]
+ * - createMatchers(string) => [RegExpToMatchString]
+ * - createMatchers(RegExp) => [RegExp]
+ * - createMatchers([RegExp, RegExp, ...]) => [RegExp, RegExp, ...]
+ * - createMatchers([string, string, ...]) => [RegExpMatchingAllStrings]
+ */
+function createMatchers(matchItems) {
+  if (!matchItems) {
+    // For invalid input, return a RegExp that matches anything
+    return [/.?/];
+  }
   const exactRegExp = (pattern) => new RegExp('^(?:' + pattern + ')$');
   const arrayRegExp = (arr) => exactRegExp(
     arr.map(value =>
@@ -53,19 +69,19 @@ function createZoneMatchers(matchZones) {
     ).join('|')
   );
 
-  if (matchZones instanceof RegExp) {
-    return [matchZones];
+  if (matchItems instanceof RegExp) {
+    return [matchItems];
   }
-  if (Array.isArray(matchZones)) {
-    const hasRegExp = matchZones.find(mz => mz instanceof RegExp);
+  if (Array.isArray(matchItems)) {
+    const hasRegExp = matchItems.some(mz => mz instanceof RegExp);
     // Quick shortcut — combine array of strings into a single regexp
     if (!hasRegExp) {
-      return [arrayRegExp(matchZones)];
+      return [arrayRegExp(matchItems)];
     }
     // Find all string values and combine them
     let ret = [];
     let strings = [];
-    matchZones.forEach(mz => {
+    matchItems.forEach(mz => {
       (mz instanceof RegExp ? ret : strings).push(mz);
     });
     if (strings.length) {
@@ -73,7 +89,25 @@ function createZoneMatchers(matchZones) {
     }
     return ret;
   }
-  return [exactRegExp(RegExp.escape(matchZones.toString()))];
+  return [exactRegExp(RegExp.escape(matchItems.toString()))];
+}
+
+/**
+ * Return `true` if `item` matches any of the RegExps in an array of matchers.
+ * If optional `extraMatchers` array is provided, `item` must match BOTH sets of matchers.
+ * If either array is empty, it's counted as matching everything.
+ */
+function anyMatch(item, regExpMatchers, extraMatchers) {
+  if (extraMatchers !== undefined) {
+    return (
+      anyMatch(item, regExpMatchers) &&
+      anyMatch(item, extraMatchers)
+    );
+  }
+  if (!regExpMatchers || !regExpMatchers.length) {
+    return true;
+  }
+  return regExpMatchers.some(matcher => matcher.test(item));
 }
 
 function cacheKey(tzdata, config) {
@@ -124,8 +158,10 @@ function cacheFile(tzdata, config, cacheDirPath) {
 
 module.exports = {
   pluginName,
-  createZoneMatchers,
   flatMap,
+  unique,
+  createMatchers,
+  anyMatch,
   cacheDir,
   cacheFile,
 };
