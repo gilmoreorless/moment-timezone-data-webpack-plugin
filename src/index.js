@@ -34,9 +34,11 @@ function filterData(tzdata, config) {
   // Get zones associated with countries that meet `matchCountries` filter
   if (hasMatchCountries) {
     countryCodeMatchers = createMatchers(matchCountries);
-    const countryCodes = countries.filter(country => anyMatch(country.name, countryCodeMatchers));
-    const countryZones = unique(flatMap(countryCodes, country =>
-      country.zones.filter(zone => anyMatch(zone, zoneMatchers))
+    const matchingCountries = countries.filter(country => anyMatch(country.name, countryCodeMatchers));
+    const countryZones = unique(flatMap(matchingCountries, country =>
+      hasMatchZones
+        ? country.zones.filter(zone => anyMatch(zone, zoneMatchers))
+        : country.zones
     ));
     countryZoneMatchers = createMatchers(countryZones);
   }
@@ -51,20 +53,21 @@ function filterData(tzdata, config) {
       const linkMatchers = createMatchers(unique(links.map(link => link[0])));
       zoneMatchers = zoneMatchers.concat(linkMatchers);
     }
+
+    // Find all zones that match anything in the matcher list (including link destinations).
+    zones = zones.filter(zone => {
+      const [zoneName] = zone.split('|');
+      return anyMatch(zoneName, zoneMatchers, countryZoneMatchers);
+    });
   }
 
-  // Find all zones that match anything in the matcher list (including link destinations).
+  // Unpack all relevant zones and built a reference Map for link normalisation.
   const zoneMap = new Map();
-  zones = zones
-    .filter(zone => {
-      const zoneName = zone.split('|')[0];
-      return anyMatch(zoneName, zoneMatchers, countryZoneMatchers);
-    })
-    .map(zone => {
-      const unpacked = moment.tz.unpack(zone);
-      zoneMap.set(unpacked.name, unpacked);
-      return unpacked;
-    });
+  zones = zones.map(zone => {
+    const unpacked = moment.tz.unpack(zone);
+    zoneMap.set(unpacked.name, unpacked);
+    return unpacked;
+  });
 
   // Normalise links to become full copies of their destination zones.
   // This helps to avoid bugs when links end up pointing to other links, as detailed at
@@ -79,9 +82,11 @@ function filterData(tzdata, config) {
 
   // Find all countries that contain the matching zones.
   if (momentHasCountries) {
-    countries.forEach(country => {
-      country.zones = country.zones.filter(zone => anyMatch(zone, zoneMatchers));
-    });
+    if (hasMatchZones) {
+      countries.forEach(country => {
+        country.zones = country.zones.filter(zone => anyMatch(zone, zoneMatchers));
+      });
+    }
     // Reduce the country data to only include countries that...
     countries = countries.filter(country =>
       // ...contain zones meeting `matchZones` filter and...
@@ -168,7 +173,7 @@ function MomentTimezoneDataPlugin(options = {}) {
 
   const startYear = options.startYear || -Infinity;
   const endYear = options.endYear || Infinity;
-  const matchZones = options.matchZones || /./;
+  const matchZones = options.matchZones || null;
   const matchCountries = options.matchCountries || null;
   const cacheDir = options.cacheDir || null;
 

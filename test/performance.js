@@ -24,28 +24,23 @@ let configs = [
     name: 'single country, all years',
     options: {
       matchCountries: ['LI'],
-      matchZones: /./,
     },
   },
   {
     name: 'single country, 10 years',
     options: {
       matchCountries: ['LI'],
-      matchZones: /./,
       startYear: 2015,
       endYear: 2024,
     },
   },
   {
     name: 'all zones, all years',
-    options: {
-      matchZones: /./,
-    },
+    options: {},
   },
   {
     name: 'all zones, 10 years',
     options: {
-      matchZones: /./,
       startYear: 2015,
       endYear: 2024,
     },

@@ -51,7 +51,7 @@ function unique(items) {
 /**
  * Create regexps for matching zone names.
  * Returns an array of regexps matching the values of `matchZones` or `matchCountries`:
- * - createMatchers(undefined) => []
+ * - createMatchers(undefined) => [/.?/]
  * - createMatchers(string) => [RegExpToMatchString]
  * - createMatchers(RegExp) => [RegExp]
  * - createMatchers([RegExp, RegExp, ...]) => [RegExp, RegExp, ...]
@@ -59,7 +59,8 @@ function unique(items) {
  */
 function createMatchers(matchItems) {
   if (!matchItems) {
-    return [];
+    // For invalid input, return a RegExp that matches anything
+    return [/.?/];
   }
   const exactRegExp = (pattern) => new RegExp('^(?:' + pattern + ')$');
   const arrayRegExp = (arr) => exactRegExp(
@@ -72,7 +73,7 @@ function createMatchers(matchItems) {
     return [matchItems];
   }
   if (Array.isArray(matchItems)) {
-    const hasRegExp = matchItems.find(mz => mz instanceof RegExp);
+    const hasRegExp = matchItems.some(mz => mz instanceof RegExp);
     // Quick shortcut — combine array of strings into a single regexp
     if (!hasRegExp) {
       return [arrayRegExp(matchItems)];

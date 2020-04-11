@@ -45,9 +45,9 @@ describe('createMatchers', () => {
     assert.deepEqual(matched, expectedMatches);
   }
 
-  it('when arg is empty, returns an empty array', () => {
+  it('when arg is empty, returns a "match everything" regexp', () => {
     let matchers = createMatchers();
-    assertMatchers(matchers, 0, []);
+    assertMatchers(matchers, 1, testStrings);
   });
 
   it('when arg is a regexp, returns array of original regexp', () => {
