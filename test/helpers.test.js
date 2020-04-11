@@ -2,7 +2,29 @@ const assert = require('power-assert');
 const del = require('del');
 const fs = require('fs');
 const findCacheDir = require('find-cache-dir');
-const { createMatchers, anyMatch, cacheDir } = require('../src/helpers');
+const { unique, createMatchers, anyMatch, cacheDir } = require('../src/helpers');
+
+describe('unique', () => {
+  it('returns empty array when a non-array is provided', () => {
+    assert.deepEqual(unique(), []);
+    assert.deepEqual(unique(null), []);
+    assert.deepEqual(unique({ a: 1, b: 2 }), []);
+  });
+
+  it('returns unique values for an array', () => {
+    assert.deepEqual(
+      unique([1, '1', 0, false, 1, 4, 0, 5]),
+      [1, '1', 0, false, 4, 5]
+    );
+  });
+
+  it('returns unique values for a string', () => {
+    assert.deepEqual(
+      unique('This is a string'),
+      ['T', 'h', 'i', 's', ' ', 'a', 't', 'r', 'n', 'g']
+    );
+  });
+});
 
 describe('createMatchers', () => {
   const testStrings = [
@@ -22,6 +44,11 @@ describe('createMatchers', () => {
     );
     assert.deepEqual(matched, expectedMatches);
   }
+
+  it('when arg is empty, returns an empty array', () => {
+    let matchers = createMatchers();
+    assertMatchers(matchers, 0, []);
+  });
 
   it('when arg is a regexp, returns array of original regexp', () => {
     let regexp = /s/i;

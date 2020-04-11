@@ -17,7 +17,7 @@ function buildWebpack(options) {
     },
     plugins: [
       new MomentTimezoneDataPlugin(options),
-      new MomentLocalesPlugin(),
+      new MomentLocalesPlugin(), // Required for making tests faster
     ],
   });
   compiler.outputFileSystem = new MemoryFS();

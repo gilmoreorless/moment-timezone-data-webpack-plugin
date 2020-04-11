@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const { createMatchers, anyMatch, cacheFile, flatMap } = require('./helpers');
+const { unique, createMatchers, anyMatch, cacheFile, flatMap } = require('./helpers');
 
 function filterData(tzdata, config) {
   const moment = require('moment-timezone/moment-timezone-utils');
@@ -16,18 +16,28 @@ function filterData(tzdata, config) {
   // "America/Anchorage|US/Alaska" -> ["America/Anchorage", "US/Alaska"]
   let links = tzdata.links.map(link => link.split('|'));
 
-  let zoneMatchers = createMatchers(matchZones);
-  let countryCodeMatchers = [/./];
-  let countryZoneMatchers = [/./];
+  // Map country data to the required format for filterLinkPack, as moment-timezone
+  // doesn't yet provide an unpack() equivalent for countries.
+  // "LI|Europe/Zurich Europe/Vaduz" -> { name: "LI", zones: ["Europe/Zurich", "Europe/Vaduz"] }
+  let countries = momentHasCountries
+    ? tzdata.countries.map(country => {
+        const [name, zonesStr] = country.split('|');
+        const zones = zonesStr.split(' ');
+        return { name, zones };
+      })
+    : [];
 
-  if (matchCountries) {
+  let zoneMatchers = createMatchers(matchZones);
+  let countryCodeMatchers = null;
+  let countryZoneMatchers = null;
+
+  // Get zones associated with countries that meet `matchCountries` filter
+  if (hasMatchCountries) {
     countryCodeMatchers = createMatchers(matchCountries);
-    const countryCodes = tzdata.countries
-      .map(country => country.split('|'))
-      .filter(country => anyMatch(country[0], countryCodeMatchers));
-    const countryZones = flatMap(countryCodes, country =>
-      country[1].split(' ').filter(zone => anyMatch(zone, zoneMatchers))
-    );
+    const countryCodes = countries.filter(country => anyMatch(country.name, countryCodeMatchers));
+    const countryZones = unique(flatMap(countryCodes, country =>
+      country.zones.filter(zone => anyMatch(zone, zoneMatchers))
+    ));
     countryZoneMatchers = createMatchers(countryZones);
   }
 
@@ -38,8 +48,7 @@ function filterData(tzdata, config) {
     // If links exist, add the links’ destination zones to the matcher list.
     if (links.length) {
       // De-duplicate the link sources.
-      const uniqueLinkSources = new Set(links.map(link => link[0]));
-      const linkMatchers = createMatchers(Array.from(uniqueLinkSources));
+      const linkMatchers = createMatchers(unique(links.map(link => link[0])));
       zoneMatchers = zoneMatchers.concat(linkMatchers);
     }
   }
@@ -69,24 +78,17 @@ function filterData(tzdata, config) {
   });
 
   // Find all countries that contain the matching zones.
-  let newCountryData = [];
   if (momentHasCountries) {
-    newCountryData = tzdata.countries
-      .map(country => {
-        const [name, zonesStr] = country.split('|');
-        const zones = zonesStr.split(' ');
-        const matchingZones = zones.filter(zone => anyMatch(zone, zoneMatchers));
-        // Manually map country data to the required format for filterLinkPack, as moment-timezone
-        // doesn't yet provide an unpack() equivalent for countries.
-        return {
-          name,
-          zones: matchingZones
-        };
-      })
-      .filter(country =>
-        country.zones.length > 0 &&
-        anyMatch(country.name, countryCodeMatchers)
-      );
+    countries.forEach(country => {
+      country.zones = country.zones.filter(zone => anyMatch(zone, zoneMatchers));
+    });
+    // Reduce the country data to only include countries that...
+    countries = countries.filter(country =>
+      // ...contain zones meeting `matchZones` filter and...
+      country.zones.length > 0 &&
+      // ...also meet `matchCountries` filter if provided.
+      anyMatch(country.name, countryCodeMatchers)
+    );
   }
 
   // Finally, run the whole lot through moment-timezone’s inbuilt packing method.
@@ -95,7 +97,7 @@ function filterData(tzdata, config) {
       version,
       zones,
       links: [], // Deliberately empty to ensure correct link data is generated from the zone data.
-      countries: newCountryData,
+      countries,
     },
     startYear,
     endYear

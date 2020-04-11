@@ -37,14 +37,30 @@ function flatMap(arr, mapper) {
 }
 
 /**
+ * Get all unique values in an array or string.
+ * unique([1, 2, 3, 1, 5, 2, 4]) -> [1, 2, 3, 5, 4]
+ * unique('this is a string') -> ['t', 'h', 'i', 's', ' ', 'a', 'r', 'n', 'g']
+ */
+function unique(items) {
+  if (!Array.isArray(items) && typeof items !== 'string') {
+    return [];
+  }
+  return Array.from(new Set(items));
+}
+
+/**
  * Create regexps for matching zone names.
  * Returns an array of regexps matching the values of `matchZones` or `matchCountries`:
+ * - createMatchers(undefined) => []
  * - createMatchers(string) => [RegExpToMatchString]
  * - createMatchers(RegExp) => [RegExp]
  * - createMatchers([RegExp, RegExp, ...]) => [RegExp, RegExp, ...]
  * - createMatchers([string, string, ...]) => [RegExpMatchingAllStrings]
  */
 function createMatchers(matchItems) {
+  if (!matchItems) {
+    return [];
+  }
   const exactRegExp = (pattern) => new RegExp('^(?:' + pattern + ')$');
   const arrayRegExp = (arr) => exactRegExp(
     arr.map(value =>
@@ -142,6 +158,7 @@ function cacheFile(tzdata, config, cacheDirPath) {
 module.exports = {
   pluginName,
   flatMap,
+  unique,
   createMatchers,
   anyMatch,
   cacheDir,
