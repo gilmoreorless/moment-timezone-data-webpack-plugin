@@ -7,6 +7,12 @@ function filterData(tzdata, config) {
   const moment = require('moment-timezone/moment-timezone-utils');
   const momentHasCountries = Boolean(tzdata.countries); // moment-timezone >= 0.5.28
   const { matchZones, matchCountries, startYear, endYear } = config;
+  const hasMatchCountries = matchCountries != null;
+  const hasMatchZones = matchZones != null;
+
+  // Unpack necessary data.
+  // "America/Anchorage|US/Alaska" -> ["America/Anchorage", "US/Alaska"]
+  let links = tzdata.links.map(link => link.split('|'));
 
   let zoneMatchers = createMatchers(matchZones);
   let countryCodeMatchers = [/./];
@@ -23,19 +29,17 @@ function filterData(tzdata, config) {
     countryZoneMatchers = createMatchers(countryZones);
   }
 
-  // Find all links that match anything in the matcher list.
-  // TODO: Optimise - shortcut when initial matchZones/matchCountries args are empty
-  const newLinksData = tzdata.links
-    .map(link => link.split('|'))
-    .filter(link => anyMatch(link[1], zoneMatchers, countryZoneMatchers));
+  if (hasMatchCountries || hasMatchZones) {
+    // Find all links that match anything in the matcher list.
+    links = links.filter(link => anyMatch(link[1], zoneMatchers, countryZoneMatchers));
 
-  // If links exist, add the links’ destination zones to the matcher list.
-  if (newLinksData.length) {
-    // TODO: De-duplicate the list of link sources before passing to createMatchers
-    let linkMatchers = createMatchers(
-      newLinksData.map(link => link[0])
-    );
-    zoneMatchers = zoneMatchers.concat(linkMatchers);
+    // If links exist, add the links’ destination zones to the matcher list.
+    if (links.length) {
+      // De-duplicate the link sources.
+      const uniqueLinkSources = new Set(links.map(link => link[0]));
+      const linkMatchers = createMatchers(Array.from(uniqueLinkSources));
+      zoneMatchers = zoneMatchers.concat(linkMatchers);
+    }
   }
 
   // Find all zones that match anything in the matcher list (including link destinations).
@@ -49,7 +53,7 @@ function filterData(tzdata, config) {
   // Normalise links to become full copies of their destination zones.
   // This helps to avoid bugs when links end up pointing to other links, as detailed at
   // https://github.com/gilmoreorless/moment-timezone-data-webpack-plugin/pull/6
-  newLinksData.forEach(link => {
+  links.forEach(link => {
     const newEntry = { ...newZonesData.find(z => z.name === link[0]) };
     newEntry.name = link[1];
     newZonesData.push(newEntry);
@@ -154,7 +158,7 @@ function MomentTimezoneDataPlugin(options = {}) {
   const startYear = options.startYear || -Infinity;
   const endYear = options.endYear || Infinity;
   const matchZones = options.matchZones || /./;
-  const matchCountries = options.matchCountries;
+  const matchCountries = options.matchCountries || null;
   const cacheDir = options.cacheDir || null;
 
   return new webpack.NormalModuleReplacementPlugin(
