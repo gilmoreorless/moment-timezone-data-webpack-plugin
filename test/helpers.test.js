@@ -40,7 +40,7 @@ describe('createMatchers', () => {
     assert(matchers.length === expectedLength);
     assert(matchers.every(m => m instanceof RegExp));
     let matched = testStrings.filter(s =>
-      matchers.find(m => m.test(s))
+      matchers.some(m => m.test(s))
     );
     assert.deepEqual(matched, expectedMatches);
   }

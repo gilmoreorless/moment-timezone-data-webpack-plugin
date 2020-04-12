@@ -30,7 +30,7 @@
   },
   "peerDependencies": {
     "moment-timezone": ">= 0.1.0",
-    "webpack": "^4.0.0"
+    "webpack": "4.x.x || 5.x.x"
   },
   "devDependencies": {
     "del": "^5.0.0",

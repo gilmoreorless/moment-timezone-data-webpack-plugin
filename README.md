@@ -136,7 +136,8 @@ There is also one non-filtering option that can be provided to configure other b
 This plugin has been tested with and officially supports the following dependencies:
 
 * Node.js 8 or higher
-* webpack 4
+* webpack 4 and 5
+* moment-timezone v0.1.0 or higher
 
 It theoretically supports older versions of webpack (as it uses built-in webpack plugins internally), but this hasn’t been tested.
 

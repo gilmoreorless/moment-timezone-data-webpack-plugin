@@ -3,6 +3,10 @@ All notable public changes to this project will be documented in this file (the 
 Development-only changes (e.g. updates to `devDependencies`) will not be listed here, as they don’t affect the public API.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## _Unreleased_
+## Added
+- Support `webpack` version 5
+
 ## 1.2.0 – 2020-04-11
 ### Added
 - Support `countries` data for `moment-timezone` versions `0.5.28` and later (#22).

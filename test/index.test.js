@@ -7,11 +7,11 @@ const MomentTimezoneDataPlugin = require('../src');
 const { buildWebpack, zoneNames, linkNames, countryCodes, transitionRange } = require('./utils');
 
 const momentHasCountries = typeof moment.tz.countries === 'function';
-
-console.log(`
---- Running tests with moment-timezone version ${
-  moment.tz.version
-} (has country data = ${momentHasCountries}) ---`);
+const versions = [
+  `webpack@${buildWebpack.version}`,
+  `moment-timezone@${moment.tz.version} (${momentHasCountries ? 'has countries' : "doesn't have countries"})`,
+];
+console.log(`\n--- Running tests with ${versions.join(', ')} ---`);
 
 describe('instantiation', () => {
   const cacheDir = findCacheDir({ name: 'moment-timezone-data-webpack-plugin' });

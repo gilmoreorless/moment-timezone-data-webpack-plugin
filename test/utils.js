@@ -5,6 +5,8 @@ const moment = require('moment-timezone');
 const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 const MomentTimezoneDataPlugin = require('../src');
 
+const rGeneratedFile = /\/node_modules\/\.cache\/moment-timezone-data-webpack-plugin\/.+?\.json$/;
+
 // buildWebpack method inspired by MomentLocalesPlugin and @webpack-contrib/test-utils
 function buildWebpack(options) {
   const compiler = webpack({
@@ -28,21 +30,16 @@ function buildWebpack(options) {
         reject(err);
       }
 
-      const module = stats.compilation.modules.find(module =>
-        module.reasons[0].dependency.request === './data/packed/latest.json'
+      const module = Array.from(stats.compilation.modules).find(mod =>
+        rGeneratedFile.test(mod.request)
       );
-      const source = module.originalSource();
-      let data = null;
-      try {
-        data = JSON.parse(source.source());
-      } catch (e) {
-        reject(e);
-      }
+      const data = module.buildInfo.jsonData;
 
       resolve({ stats, module, data });
     });
   });
 }
+buildWebpack.version = webpack.version;
 
 function getPackedNames(packedList, index = 0) {
   return packedList
