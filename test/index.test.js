@@ -244,6 +244,15 @@ describe('usage', () => {
         assert.deepEqual(zoneNames(data), ['Australia/Eucla', 'Australia/Perth']);
         assert.ok(linkNames(data).length === 0);
       });
+
+      // https://github.com/moment/moment-timezone/issues/835
+      it('includes data from links referenced by a country code', async () => {
+        const { data } = await buildWebpack({
+          matchCountries: 'UM'
+        });
+        assert.deepEqual(zoneNames(data), ['Pacific/Honolulu', 'Pacific/Pago_Pago', 'Pacific/Tarawa']);
+        assert.deepEqual(linkNames(data), ['Pacific/Midway', 'Pacific/Wake']);
+      });
     }
 
     if (!momentHasCountries && assert.rejects !== undefined) {

@@ -45,14 +45,30 @@ function filterData(tzdata, config) {
 
   if (hasMatchCountries || hasMatchZones) {
     // Find all links that match anything in the matcher list.
-    links = links.filter(link => anyMatch(link[1], zoneMatchers, countryZoneMatchers));
+    const matchCountryLinks = [];
+    const matchZoneLinks = [];
+    links.forEach(link => {
+      const linkName = link[1];
+      if (hasMatchCountries && anyMatch(linkName, countryZoneMatchers)) {
+        matchCountryLinks.push(link);
+      }
+      if (hasMatchZones && anyMatch(linkName, zoneMatchers, countryZoneMatchers)) {
+        matchZoneLinks.push(link);
+      }
+    });
+    links = matchCountryLinks.concat(matchZoneLinks);
 
-    // If links exist, add the links’ destination zones to the matcher list.
-    if (links.length) {
-      // De-duplicate the link sources.
-      const linkMatchers = createMatchers(unique(links.map(link => link[0])));
-      zoneMatchers = zoneMatchers.concat(linkMatchers);
-    }
+    // If links exist, add the links’ destination zones to the matcher lists.
+    [
+      [matchCountryLinks, countryZoneMatchers],
+      [matchZoneLinks, zoneMatchers],
+    ].forEach(([linkList, matcherList]) => {
+      if (linkList.length) {
+        // De-duplicate the link sources.
+        const linkMatchers = createMatchers(unique(linkList.map(link => link[0])));
+        matcherList.push(...linkMatchers);
+      }
+    });
 
     // Find all zones that match anything in the matcher list (including link destinations).
     zones = zones.filter(zone => {

@@ -4,8 +4,11 @@ Development-only changes (e.g. updates to `devDependencies`) will not be listed 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## _Unreleased_
-## Added
-- Support `webpack` version 5
+### Added
+- Support `webpack` version 5.
+
+### Fixed
+- Fixed an error when using `matchCountries` with a country that references `links` as well as `zones` (#27).
 
 ## 1.2.0 – 2020-04-11
 ### Added
