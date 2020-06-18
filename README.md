@@ -2,7 +2,6 @@
 
 [![npm][badge-npm-img]][badge-npm]
 [![Build Status][badge-ci-img]][badge-ci]
-[![Greenkeeper badge][badge-gk-img]][badge-gk]
 
 Oof, that’s a clunky name, but at least it’s descriptive.
 
@@ -210,8 +209,6 @@ const plugin = new MomentTimezoneDataPlugin({
 [badge-npm-img]: https://img.shields.io/npm/v/moment-timezone-data-webpack-plugin.svg
 [badge-ci]:      https://travis-ci.org/gilmoreorless/moment-timezone-data-webpack-plugin
 [badge-ci-img]:  https://travis-ci.org/gilmoreorless/moment-timezone-data-webpack-plugin.svg?branch=master
-[badge-gk]:      https://greenkeeper.io/
-[badge-gk-img]:  https://badges.greenkeeper.io/gilmoreorless/moment-timezone-data-webpack-plugin.svg
 
 [iso3166]: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 [moment-tz]: https://momentjs.com/timezone/
