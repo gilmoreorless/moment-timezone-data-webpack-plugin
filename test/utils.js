@@ -31,9 +31,9 @@ function buildWebpack(options) {
       }
 
       const module = Array.from(stats.compilation.modules).find(mod =>
-        rGeneratedFile.test(mod.request)
+          rGeneratedFile.test(mod.request) // Matches only if data processed (and cache generated)
       );
-      const data = module.buildInfo.jsonData;
+      const data = module ? module.buildInfo.jsonData : null; // In case no processing happened
 
       resolve({ stats, module, data });
     });

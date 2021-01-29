@@ -31,7 +31,7 @@ describe('instantiation', () => {
     );
   });
 
-  // TOOD: Warn instead of throw?
+  // TODO: Warn instead of throw?
   it('throws when called with no arguments', () => {
     assert.throws(
       () => new MomentTimezoneDataPlugin(),
@@ -399,5 +399,34 @@ describe('usage', () => {
       await buildWebpack({ matchZones: 'Etc' });
       assert(cachedFiles().length === 2);
     });
+  });
+
+  describe('custom context', () => {
+
+    it('matches moment-timezone in the specified context', async ()  => {
+      const { data } = await buildWebpack({
+        startYear: 1700,
+        momentTimezoneContext: /node_modules[\\/]moment-timezone$/,
+      });
+      const zoneCount = data.zones.length + data.links.length;
+      assert(zoneCount === moment.tz.names().length);
+      if (momentHasCountries) {
+        assert(data.countries.length === moment.tz.countries().length);
+      }
+    });
+
+    it('does not match moment-timezone when out of the specified context', async ()  => {
+      const { data } = await buildWebpack({
+        startYear: 1700,
+        momentTimezoneContext: /nonexistingdir[\\/]moment-timezone$/,
+      });
+      assert(data == null);
+    });
+
+    /* TODO: missing
+    it('matches moment-timezone only in the specified context', async ()  => {
+    });
+     */
+
   });
 });
