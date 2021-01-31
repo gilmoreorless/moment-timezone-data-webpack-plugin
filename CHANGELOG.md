@@ -3,6 +3,10 @@ All notable public changes to this project will be documented in this file (the 
 Development-only changes (e.g. updates to `devDependencies`) will not be listed here, as they don’t affect the public API.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.4.0 – 2021-01-31
+### Added
+- New `momentTimezoneContext` option for handling webpack dependencies outside `node_modules` (PR #35 — thanks to @diniciacci).
+
 ## 1.3.0 – 2020-05-01
 ### Added
 - Support `webpack` version 5.
