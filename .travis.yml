@@ -11,6 +11,8 @@ jobs:
       node_js: 10
     - os: linux
       node_js: 12
+    - os: linux
+      node_js: 14
 
     # Windows support on Travis CI is experimental.
     # The tests run just fine and the build exits with 0, but the job never
@@ -26,9 +28,9 @@ jobs:
       env:
         TEST_REGRESSION=true
 
-    # Extra testing with webpack v5 beta
+    # Extra testing with webpack v5
     - os: linux
-      node_js: 12
+      node_js: 14
       before_install:
       - yarn add -D webpack@next
       env:
