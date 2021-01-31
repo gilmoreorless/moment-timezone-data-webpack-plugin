@@ -132,7 +132,7 @@ function throwInvalid(message) {
 
 function validateOptions(options) {
   const filteringOptions = ['matchZones', 'matchCountries', 'startYear', 'endYear'];
-  const otherOptions = ['cacheDir'];
+  const otherOptions = ['cacheDir', 'momentTimezoneContext'];
   const knownOptions = filteringOptions.concat(otherOptions);
   const optionNames = Object.keys(options);
   let usedFilteringOptions = [];
@@ -174,14 +174,16 @@ function validateOptions(options) {
     }
   });
 
-  // Invalid cache dir (not a valid path)
-  if ('cacheDir' in options) {
-    try {
-      path.parse(options.cacheDir);
-    } catch (error) {
-      throwInvalid(`Provided cacheDir is an invalid path: '${options.cacheDir}'`);
+  // Check options that require a valid path
+  ['cacheDir'].forEach(option => {
+    if (option in options) {
+      try {
+        path.parse(options[option]);
+      } catch (error) {
+        throwInvalid(`Provided ${option} is an invalid path: '${options[option]}'`);
+      }
     }
-  }
+  });
 }
 
 function MomentTimezoneDataPlugin(options = {}) {
@@ -192,11 +194,12 @@ function MomentTimezoneDataPlugin(options = {}) {
   const matchZones = options.matchZones || null;
   const matchCountries = options.matchCountries || null;
   const cacheDir = options.cacheDir || null;
+  const momentTimezoneContext = options.momentTimezoneContext || /node_modules[\\/]moment-timezone$/;
 
   return new webpack.NormalModuleReplacementPlugin(
     /data[\\/]packed[\\/]latest\.json$/,
     resource => {
-      if (resource.context.match(/node_modules[\\/]moment-timezone$/)) {
+      if (resource.context.match(momentTimezoneContext)) {
         const config = { matchZones, matchCountries, startYear, endYear };
         const tzdata = require('moment-timezone/data/packed/latest.json');
         const file = cacheFile(tzdata, config, cacheDir);

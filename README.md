@@ -129,6 +129,7 @@ For this reason, it’s probably safer to provide only one of `matchZones` or `m
 There is also one non-filtering option that can be provided to configure other behaviour.
 
 * `cacheDir` _(string)_ — A path where the generated files will be cached. If not provided, the files will be cached in an automatically-generated location.
+* `momentTimezoneContext` _(regexp)_ — A regexp matching a context where `moment-timezone` is located. The timezone file will be replaced only if it is located in this context. Other instances of the timezone file out of this context will not be touched. This is useful in case you are using a version stored outside of `node_modules` (e.g. if module or vendor directory is `vendor\moment-timezone` the context could be matched for example with `vendor[\\/]moment-timezone$`). Defaults to `/node_modules[\\/]moment-timezone$/`.
 
 ### Version support
 
