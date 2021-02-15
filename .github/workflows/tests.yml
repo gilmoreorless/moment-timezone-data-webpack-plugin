@@ -24,10 +24,10 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         node: [8, 10, 12, 14]
-    # Only run one Node version on Windows
-    include:
-      - os: windows-latest
-        node: 14
+        # Only run one Node version on Windows
+        include:
+          - os: windows-latest
+            node: 14
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node }}
