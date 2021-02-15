@@ -5,7 +5,7 @@ const moment = require('moment-timezone');
 const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 const MomentTimezoneDataPlugin = require('../src');
 
-const rGeneratedFile = /\/node_modules\/\.cache\/moment-timezone-data-webpack-plugin\/.+?\.json$/;
+const rGeneratedFile = /[\\/]node_modules[\\/]\.cache[\\/]moment-timezone-data-webpack-plugin[\\/].+?\.json$/;
 
 // buildWebpack method inspired by MomentLocalesPlugin and @webpack-contrib/test-utils
 function buildWebpack(options) {
