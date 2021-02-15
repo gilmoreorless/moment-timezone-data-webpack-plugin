@@ -208,8 +208,8 @@ const plugin = new MomentTimezoneDataPlugin({
 
 [badge-npm]:     https://www.npmjs.com/package/moment-timezone-data-webpack-plugin
 [badge-npm-img]: https://img.shields.io/npm/v/moment-timezone-data-webpack-plugin.svg
-[badge-ci]:      https://travis-ci.org/gilmoreorless/moment-timezone-data-webpack-plugin
-[badge-ci-img]:  https://travis-ci.org/gilmoreorless/moment-timezone-data-webpack-plugin.svg?branch=master
+[badge-ci]:      https://github.com/gilmoreorless/moment-timezone-data-webpack-plugin/actions?query=workflow%3A%22Tests%22
+[badge-ci-img]:  https://github.com/gilmoreorless/moment-timezone-data-webpack-plugin/workflows/Tests/badge.svg
 
 [iso3166]: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 [moment-tz]: https://momentjs.com/timezone/
