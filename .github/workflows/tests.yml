@@ -1,0 +1,64 @@
+name: CI Tests
+
+on:
+  push:
+    branches: [ github-actions ]
+
+jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+    - run: yarn --frozen-lockfile
+    - run: yarn run lint
+
+  test:
+    name: Default tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [8, 10, 12, 14]
+    # Only run one Node version on Windows
+    include:
+      - os: windows-latest
+        node: 14
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node }}
+    - run: yarn --frozen-lockfile
+    - run: yarn test
+
+  # Extra testing with an older version of moment-timezone as a regression check
+  test-regression-mtz:
+    name: Regression testing
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+    - run: yarn add -D moment-timezone@0.5.0
+    - run: yarn test
+
+  # Extra testing with webpack v5
+  test-webpack-5:
+    name: Webpack v5 testing
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+    - run: yarn add -D webpack@latest
+    - run: yarn test
