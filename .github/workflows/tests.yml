@@ -1,8 +1,6 @@
 name: CI Tests
 
-on:
-  push:
-    branches: [ github-actions ]
+on: [push, pull_request]
 
 jobs:
   lint:
