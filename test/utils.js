@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const MemoryFS = require('memory-fs');
+const { createFsFromVolume, Volume } = require('memfs');
 const moment = require('moment-timezone');
 const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 const MomentTimezoneDataPlugin = require('../src');
@@ -22,7 +22,9 @@ function buildWebpack(options) {
       new MomentLocalesPlugin(), // Required for making tests faster
     ],
   });
-  compiler.outputFileSystem = new MemoryFS();
+  compiler.outputFileSystem = createFsFromVolume(new Volume());
+  // Add a non-standard `fs.join` that's used by webpack v4
+  compiler.outputFileSystem.join = path.join;
 
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {
