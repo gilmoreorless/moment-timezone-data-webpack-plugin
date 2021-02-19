@@ -1,8 +1,11 @@
 const assert = require('assert');
 const del = require('del');
 const findCacheDir = require('find-cache-dir');
+const fs = require('fs');
 const glob = require('glob');
+const { link } = require('linkfs');
 const moment = require('moment-timezone');
+const path = require('path');
 const MomentTimezoneDataPlugin = require('../src');
 const { buildWebpack, zoneNames, linkNames, countryCodes, transitionRange } = require('./utils');
 
@@ -423,10 +426,35 @@ describe('usage', () => {
       assert(data == null);
     });
 
-    /* TODO: missing
     it('matches moment-timezone only in the specified context', async ()  => {
+      const pluginOptions = {
+        startYear: 1700,
+        momentTimezoneContext: /vendor[\\/]moment-timezone$/,
+      };
+      const webpackOptions = {
+        resolve: {
+          modules: ['vendor']
+        }
+      };
+      const mockFs = link(fs, [
+        path.join(__dirname, '..', 'vendor'),
+        path.join(__dirname, '..', 'node_modules')
+      ]);
+
+      // Resolving webpack modules to a non-existent directory won't filter anything
+      const build1 = await buildWebpack(pluginOptions, { webpackOptions });
+      assert.strictEqual(build1.data, null);
+
+      // Resolving to a custom directory will filter
+      const build2 = await buildWebpack(pluginOptions, {
+        webpackOptions,
+        inputFileSystem: mockFs,
+      });
+      const { data } = build2;
+      assert.notStrictEqual(data, null);
+      const zoneCount = data.zones.length + data.links.length;
+      assert(zoneCount === moment.tz.names().length);
     });
-     */
 
   });
 });

@@ -8,8 +8,8 @@ const MomentTimezoneDataPlugin = require('../src');
 const rGeneratedFile = /[\\/]node_modules[\\/]\.cache[\\/]moment-timezone-data-webpack-plugin[\\/].+?\.json$/;
 
 // buildWebpack method inspired by MomentLocalesPlugin and @webpack-contrib/test-utils
-function buildWebpack(options) {
-  const compiler = webpack({
+function buildWebpack(pluginOptions, testOptions = {}) {
+  const compilerOptions = {
     mode: 'development',
     devtool: 'hidden-source-map',
     entry: path.resolve(__dirname, 'fixtures', 'index.js'),
@@ -18,13 +18,18 @@ function buildWebpack(options) {
       filename: 'test-output.[filehash].js',
     },
     plugins: [
-      new MomentTimezoneDataPlugin(options),
+      new MomentTimezoneDataPlugin(pluginOptions),
       new MomentLocalesPlugin(), // Required for making tests faster
     ],
-  });
+    ...(testOptions.webpackOptions || {}),
+  };
+  const compiler = webpack(compilerOptions);
   compiler.outputFileSystem = createFsFromVolume(new Volume());
   // Add a non-standard `fs.join` that's used by webpack v4
   compiler.outputFileSystem.join = path.join;
+  if (testOptions.inputFileSystem) {
+    compiler.inputFileSystem = testOptions.inputFileSystem;
+  }
 
   return new Promise((resolve, reject) => {
     compiler.run((err, stats) => {
@@ -33,7 +38,7 @@ function buildWebpack(options) {
       }
 
       const module = Array.from(stats.compilation.modules).find(mod =>
-          rGeneratedFile.test(mod.request) // Matches only if data processed (and cache generated)
+        rGeneratedFile.test(mod.request) // Matches only if data processed (and cache generated)
       );
       const data = module ? module.buildInfo.jsonData : null; // In case no processing happened
 
