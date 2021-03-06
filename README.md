@@ -118,7 +118,7 @@ There are four available options to filter the time zone data. **At least one op
   * _array_ (of the above types) — Include zones matching any of the values of the array. Each value can be a string or a regular expression, which will be matched following the rules above.
 * `matchCountries` — Only include data for time zones associated with specific countries, as determined by Moment Timezone’s [`zonesForCountry()`][moment-tz-zfc] API. `matchCountries` works with [ISO 3166 2-letter country codes][iso3166], and can be any of these types:
   * _string_ — Include zones for this country code as an exact match (e.g. `'AU'`).
-  * _regexp_ — Include zones for country code matching the regular expression (e.g. `/^A|NZ/`).
+  * _regexp_ — Include zones for country codes matching the regular expression (e.g. `/^A|NZ/`).
   * _array_ (of the above types) — Include zones for country codes matching any of the values of the array. Each value can be a string or a regular expression, which will be matched following the rules above.
 
 **NOTE:** The `matchCountries` option will only work when used with `moment-timezone` version `0.5.28` or later. If this option is used with a non-compliant version of `moment-timezone`, an error will be thrown.
