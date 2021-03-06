@@ -3,6 +3,10 @@ All notable public changes to this project will be documented in this file (the 
 Development-only changes (e.g. updates to `devDependencies`) will not be listed here, as they don’t affect the public API.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Added
+- Added TypeScript declaration file (#37).
+
 ## 1.4.0 – 2021-01-31
 ### Added
 - New `momentTimezoneContext` option for handling webpack dependencies outside `node_modules` (PR #35 — thanks to @diniciacci).

@@ -3,6 +3,7 @@
   "version": "1.4.0",
   "description": "Remove unneeded data from moment-timezone in a webpack build",
   "main": "src/index.js",
+  "types": "src/index.d.ts",
   "keywords": [
     "webpack",
     "moment",
@@ -33,6 +34,7 @@
     "webpack": "4.x.x || 5.x.x"
   },
   "devDependencies": {
+    "@types/webpack": "^4.41.26",
     "del": "^5.0.0",
     "eslint": "^6.0.1",
     "glob": "^7.1.3",
