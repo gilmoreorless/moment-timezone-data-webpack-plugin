@@ -22,6 +22,7 @@
     "prebuild:example": "rm -rf example/dist/*",
     "build:example": "cd example && for cfg in config/webpack.config.*.js; do webpack --config $cfg; done && gzip --keep --force dist/*.js",
     "lint": "eslint example src test",
+    "version": "sed -i '' -e \"s/Unreleased/$npm_package_version – $(date +'%Y-%m-%d')/\" CHANGELOG.md && git add CHANGELOG.md",
     "test": "mocha --require intelli-espower-loader test/*.test.js",
     "test:performance": "node test/performance.js"
   },
