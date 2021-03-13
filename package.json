@@ -1,6 +1,6 @@
 {
   "name": "moment-timezone-data-webpack-plugin",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Remove unneeded data from moment-timezone in a webpack build",
   "main": "src/index.js",
   "types": "src/index.d.ts",
