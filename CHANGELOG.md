@@ -3,6 +3,12 @@ All notable public changes to this project will be documented in this file (the 
 Development-only changes (e.g. updates to `devDependencies`) will not be listed here, as they don’t affect the public API.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Changed
+- :warning: No longer tested against NodeJS 8 or 10. No code changes have been made, so it should still work
+  on these EOL versions, but it's not guaranteed.
+
 ## 1.5.0 – 2021-03-13
 ### Added
 - Added TypeScript declaration file (#37).
