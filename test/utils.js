@@ -40,7 +40,11 @@ function buildWebpack(pluginOptions, testOptions = {}) {
       const module = Array.from(stats.compilation.modules).find(mod =>
         rGeneratedFile.test(mod.request) // Matches only if data processed (and cache generated)
       );
-      const data = module ? module.buildInfo.jsonData : null; // In case no processing happened
+      let data = module ? module.buildInfo.jsonData : null; // In case no processing happened
+      // webpack 5.43.0+ returns a custom JsonData object, so convert it to a plain object
+      if (data && typeof data.get === 'function') {
+        data = data.get();
+      }
 
       resolve({ stats, module, data });
     });
