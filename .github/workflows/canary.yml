@@ -1,0 +1,18 @@
+name: Canary Tests (latest versions)
+
+on:
+  schedule:
+    - cron: '0 0 3 * *' # Third day of each month
+
+jobs:
+  test-canary:
+    name: Canary testing
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        check-latest: true
+    - run: yarn add -D moment-timezone@latest webpack@latest
+    - run: yarn test
