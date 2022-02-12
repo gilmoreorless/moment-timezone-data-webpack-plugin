@@ -100,7 +100,7 @@ describe('usage', () => {
       const { data } = await buildWebpack({
         matchZones: 'Antarctica/Troll',
       });
-      assert.deepEqual(zoneNames(data), ['Antarctica/Troll']);
+      assert.deepStrictEqual(zoneNames(data), ['Antarctica/Troll']);
       assert.ok(linkNames(data).length === 0);
     });
 
@@ -116,7 +116,7 @@ describe('usage', () => {
       const { data } = await buildWebpack({
         matchZones: /huu/,
       });
-      assert.deepEqual(zoneNames(data), ['Pacific/Chuuk']);
+      assert.deepStrictEqual(zoneNames(data), ['Pacific/Chuuk']);
       assert.ok(linkNames(data).length === 0);
     });
 
@@ -125,7 +125,7 @@ describe('usage', () => {
         // 'London' won't match anything; the zone name is 'Europe/London'
         matchZones: ['Europe/Madrid', 'Europe/Berlin', 'London'],
       });
-      assert.deepEqual(zoneNames(data), ['Europe/Berlin', 'Europe/Madrid']);
+      assert.deepStrictEqual(zoneNames(data), ['Europe/Berlin', 'Europe/Madrid']);
       assert.ok(linkNames(data).length === 0);
     });
 
@@ -133,7 +133,7 @@ describe('usage', () => {
       const { data } = await buildWebpack({
         matchZones: [/Argentina\/S/, /europe\/z.*?h.*?$/i],
       });
-      assert.deepEqual(zoneNames(data), [
+      assert.deepStrictEqual(zoneNames(data), [
         'America/Argentina/Salta', 'America/Argentina/San_Juan', 'America/Argentina/San_Luis',
         'Europe/Zaporozhye', 'Europe/Zurich'
       ]);
@@ -144,7 +144,7 @@ describe('usage', () => {
       const { data } = await buildWebpack({
         matchZones: ['Australia/Sydney', /Argentina\/S/, 'Africa/Nairobi'],
       });
-      assert.deepEqual(zoneNames(data), [
+      assert.deepStrictEqual(zoneNames(data), [
         'Africa/Nairobi', 'America/Argentina/Salta', 'America/Argentina/San_Juan',
         'America/Argentina/San_Luis', 'Australia/Sydney'
       ]);
@@ -156,8 +156,8 @@ describe('usage', () => {
         matchZones: /z$/,
       });
       // 'Europe/Zurich' doesn't match, but it's the source for the 'Europe/Vaduz' link
-      assert.deepEqual(zoneNames(data), ['America/La_Paz', 'Europe/Zurich']);
-      assert.deepEqual(linkNames(data), ['Europe/Vaduz']);
+      assert.deepStrictEqual(zoneNames(data), ['America/La_Paz', 'Europe/Zurich']);
+      assert.deepStrictEqual(linkNames(data), ['Europe/Vaduz']);
     });
 
     if (momentHasCountries) {
@@ -165,7 +165,7 @@ describe('usage', () => {
         const { data } = await buildWebpack({
           matchZones: /z$/,
         });
-        assert.deepEqual(data.countries, [
+        assert.deepStrictEqual(data.countries, [
           'BO|America/La_Paz',
           'CH|Europe/Zurich',
           'DE|Europe/Zurich',
@@ -181,9 +181,9 @@ describe('usage', () => {
         const { data } = await buildWebpack({
           matchCountries: 'BA',
         });
-        assert.deepEqual(countryCodes(data), ['BA']);
-        assert.deepEqual(zoneNames(data), ['Europe/Belgrade']);
-        assert.deepEqual(linkNames(data), ['Europe/Sarajevo']);
+        assert.deepStrictEqual(countryCodes(data), ['BA']);
+        assert.deepStrictEqual(zoneNames(data), ['Europe/Belgrade']);
+        assert.deepStrictEqual(linkNames(data), ['Europe/Sarajevo']);
       });
 
       it("returns no zones when a single string argument doesn't match any country", async () => {
@@ -199,9 +199,9 @@ describe('usage', () => {
         const { data } = await buildWebpack({
           matchCountries: /^Z/,
         });
-        assert.deepEqual(countryCodes(data), ['ZA', 'ZM', 'ZW']);
-        assert.deepEqual(zoneNames(data), ['Africa/Johannesburg', 'Africa/Maputo']);
-        assert.deepEqual(linkNames(data), ['Africa/Harare', 'Africa/Lusaka']);
+        assert.deepStrictEqual(countryCodes(data), ['ZA', 'ZM', 'ZW']);
+        assert.deepStrictEqual(zoneNames(data), ['Africa/Johannesburg', 'Africa/Maputo']);
+        assert.deepStrictEqual(linkNames(data), ['Africa/Harare', 'Africa/Lusaka']);
       });
 
       it('filters zones for countries matching an array of strings (exact match)', async () => {
@@ -209,8 +209,8 @@ describe('usage', () => {
           // 'A' should not do any partial matching of codes
           matchCountries: ['MO', 'CH', 'A'],
         });
-        assert.deepEqual(countryCodes(data), ['CH', 'MO']);
-        assert.deepEqual(zoneNames(data), ['Asia/Macau', 'Europe/Zurich']);
+        assert.deepStrictEqual(countryCodes(data), ['CH', 'MO']);
+        assert.deepStrictEqual(zoneNames(data), ['Asia/Macau', 'Europe/Zurich']);
         assert.ok(linkNames(data).length === 0);
       });
 
@@ -218,20 +218,20 @@ describe('usage', () => {
         const { data } = await buildWebpack({
           matchCountries: [/^q/i, /D[AEIOU]/],
         });
-        assert.deepEqual(countryCodes(data), ['DE', 'DO', 'QA']);
-        assert.deepEqual(zoneNames(data), [
+        assert.deepStrictEqual(countryCodes(data), ['DE', 'DO', 'QA']);
+        assert.deepStrictEqual(zoneNames(data), [
           'America/Santo_Domingo', 'Asia/Qatar',
           'Europe/Berlin', 'Europe/Zurich',
         ]);
-        assert.deepEqual(linkNames(data), ['Europe/Busingen']);
+        assert.deepStrictEqual(linkNames(data), ['Europe/Busingen']);
       });
 
       it('filters zones for countries matching an array of mixed values', async () => {
         const { data } = await buildWebpack({
           matchCountries: [/B$/, 'AZ'],
         });
-        assert.deepEqual(countryCodes(data), ['AZ', 'BB', 'GB', 'LB', 'SB']);
-        assert.deepEqual(zoneNames(data), [
+        assert.deepStrictEqual(countryCodes(data), ['AZ', 'BB', 'GB', 'LB', 'SB']);
+        assert.deepStrictEqual(zoneNames(data), [
           'America/Barbados', 'Asia/Baku', 'Asia/Beirut',
           'Europe/London', 'Pacific/Guadalcanal',
         ]);
@@ -243,8 +243,8 @@ describe('usage', () => {
           matchCountries: 'AU',
           matchZones: /\/\w{5}$/, // 5-letter city name
         });
-        assert.deepEqual(countryCodes(data), ['AU']);
-        assert.deepEqual(zoneNames(data), ['Australia/Eucla', 'Australia/Perth']);
+        assert.deepStrictEqual(countryCodes(data), ['AU']);
+        assert.deepStrictEqual(zoneNames(data), ['Australia/Eucla', 'Australia/Perth']);
         assert.ok(linkNames(data).length === 0);
       });
 
@@ -253,8 +253,8 @@ describe('usage', () => {
         const { data } = await buildWebpack({
           matchCountries: 'UM'
         });
-        assert.deepEqual(zoneNames(data), ['Pacific/Honolulu', 'Pacific/Pago_Pago', 'Pacific/Tarawa']);
-        assert.deepEqual(linkNames(data), ['Pacific/Midway', 'Pacific/Wake']);
+        assert.deepStrictEqual(zoneNames(data), ['Pacific/Honolulu', 'Pacific/Pago_Pago', 'Pacific/Tarawa']);
+        assert.deepStrictEqual(linkNames(data), ['Pacific/Midway', 'Pacific/Wake']);
       });
     }
 
@@ -340,7 +340,7 @@ describe('usage', () => {
       const { start, end } = transitionRange(data.zones[0]);
       assert(start.year() === 2007);
       assert(end.year() === 2010);
-      assert.deepEqual(zoneNames(data), ['Australia/Hobart', 'Australia/Sydney']);
+      assert.deepStrictEqual(zoneNames(data), ['Australia/Hobart', 'Australia/Sydney']);
       assert(data.links.length === 0);
     });
 
@@ -351,8 +351,8 @@ describe('usage', () => {
         startYear: 2008,
         endYear: 2010,
       });
-      assert.deepEqual(zoneNames(data), ['Australia/Sydney']);
-      assert.deepEqual(linkNames(data), ['Australia/Hobart']);
+      assert.deepStrictEqual(zoneNames(data), ['Australia/Sydney']);
+      assert.deepStrictEqual(linkNames(data), ['Australia/Hobart']);
     });
 
     it("includes all zones and links when matchZones isn't provided", async () => {
