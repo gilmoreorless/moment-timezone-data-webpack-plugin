@@ -146,7 +146,7 @@ function cacheDir(cacheDirPath) {
 
 function cacheFile(tzdata, config, cacheDirPath) {
   const key = cacheKey(tzdata, config);
-  const filename = crypto.createHash('md4')
+  const filename = crypto.createHash('md5')
     .update(key)
     .digest('hex') + '.json';
   const filepath = path.join(cacheDir(cacheDirPath), filename);
