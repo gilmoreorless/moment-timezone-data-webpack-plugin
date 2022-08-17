@@ -13,6 +13,7 @@ const momentHasCountries = typeof moment.tz.countries === 'function';
 const versions = [
   `webpack@${buildWebpack.version}`,
   `moment-timezone@${moment.tz.version} (${momentHasCountries ? 'has countries' : "doesn't have countries"})`,
+  `nodejs@${process.version}`
 ];
 console.log(`\n--- Running tests with ${versions.join(', ')} ---`);
 
