@@ -3,6 +3,7 @@ name: Canary Tests (latest versions)
 on:
   schedule:
     - cron: '0 0 3 * *' # Third day of each month
+  workflow_dispatch:
 
 jobs:
   test-canary:
