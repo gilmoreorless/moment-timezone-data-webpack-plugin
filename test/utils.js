@@ -11,11 +11,12 @@ const rGeneratedFile = /[\\/]node_modules[\\/]\.cache[\\/]moment-timezone-data-w
 function buildWebpack(pluginOptions, testOptions = {}) {
   const compilerOptions = {
     mode: 'development',
-    devtool: 'hidden-source-map',
+    devtool: 'eval',
     entry: path.resolve(__dirname, 'fixtures', 'index.js'),
     output: {
       path: __dirname,
       filename: 'test-output.[filehash].js',
+      hashFunction: 'md5'
     },
     plugins: [
       new MomentTimezoneDataPlugin(pluginOptions),
