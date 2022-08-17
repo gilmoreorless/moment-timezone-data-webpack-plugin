@@ -14,6 +14,7 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v2
       with:
+        node-version: latest
         check-latest: true
     - run: yarn add -D moment-timezone@latest webpack@latest
     - run: yarn test
