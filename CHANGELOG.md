@@ -4,6 +4,8 @@ Development-only changes (e.g. updates to `devDependencies`) will not be listed 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+### Fixed
+- Changed caching mechanism to fix failures in NodeJS 18 (PR #50 - thanks to @mattlewis92).
 
 ### Changed
 - :warning: No longer tested against NodeJS 8 or 10. No code changes have been made, so it should still work
