@@ -3,7 +3,7 @@ All notable public changes to this project will be documented in this file (the 
 Development-only changes (e.g. updates to `devDependencies`) will not be listed here, as they don’t affect the public API.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 1.5.1 – 2022-08-19
 ### Fixed
 - Changed caching mechanism to fix failures in NodeJS 18 (PR #50 - thanks to @mattlewis92).
 
