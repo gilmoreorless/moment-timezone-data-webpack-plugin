@@ -48,15 +48,16 @@ jobs:
     - run: yarn add -D moment-timezone@0.5.0
     - run: yarn test
 
-  # Extra testing with webpack v5
-  test-webpack-5:
-    name: Webpack v5 testing
+  # Extra testing with webpack v4
+  test-webpack-4:
+    name: Webpack v4 testing
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: Use Node.js
       uses: actions/setup-node@v3
+      # NOTE: webpack v4 doesn't work properly with Node 17+
       with:
         node-version: 16
-    - run: yarn add -D webpack@latest
+    - run: yarn add -D webpack@4
     - run: yarn test
