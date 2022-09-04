@@ -115,9 +115,9 @@ describe('usage', () => {
 
     it('filters zones matching a single regexp', async () => {
       const { data } = await buildWebpack({
-        matchZones: /huu/,
+        matchZones: /Be.+n$/,
       });
-      assert.deepStrictEqual(zoneNames(data), ['Pacific/Chuuk']);
+      assert.deepStrictEqual(zoneNames(data), ['Europe/Berlin']);
       assert.ok(linkNames(data).length === 0);
     });
 
