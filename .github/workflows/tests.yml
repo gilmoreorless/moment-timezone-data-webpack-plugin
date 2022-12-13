@@ -16,6 +16,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 16
+        cache: yarn
     - run: yarn --frozen-lockfile
     - run: yarn run lint
 
@@ -36,6 +37,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
+        cache: yarn
     - run: yarn --frozen-lockfile
     - run: yarn test
 
@@ -49,6 +51,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 16
+        cache: yarn
     - run: yarn add -D moment-timezone@0.5.0
     - run: yarn test
 
@@ -63,5 +66,6 @@ jobs:
       # NOTE: webpack v4 doesn't work properly with Node 17+
       with:
         node-version: 16
+        cache: yarn
     - run: yarn add -D webpack@4
     - run: yarn test

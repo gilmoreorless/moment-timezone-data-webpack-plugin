@@ -132,11 +132,11 @@ describe('usage', () => {
 
     it('filters zones matching an array of regexps', async () => {
       const { data } = await buildWebpack({
-        matchZones: [/Argentina\/S/, /europe\/z.*?h.*?$/i],
+        matchZones: [/Argentina\/S/, /europe\/z.*?h$/i],
       });
       assert.deepStrictEqual(zoneNames(data), [
         'America/Argentina/Salta', 'America/Argentina/San_Juan', 'America/Argentina/San_Luis',
-        'Europe/Zaporozhye', 'Europe/Zurich'
+        'Europe/Zurich'
       ]);
       assert.ok(linkNames(data).length === 0);
     });
@@ -154,7 +154,7 @@ describe('usage', () => {
 
     it('includes non-matching zones that are sources for matching links', async () => {
       const { data } = await buildWebpack({
-        matchZones: /z$/,
+        matchZones: /[au]z$/,
       });
       // 'Europe/Zurich' doesn't match, but it's the source for the 'Europe/Vaduz' link
       assert.deepStrictEqual(zoneNames(data), ['America/La_Paz', 'Europe/Zurich']);
@@ -164,7 +164,7 @@ describe('usage', () => {
     if (momentHasCountries) {
       it('filters country data based on matching zones', async () => {
         const { data } = await buildWebpack({
-          matchZones: /z$/,
+          matchZones: /[au]z$/,
         });
         assert.deepStrictEqual(data.countries, [
           'BO|America/La_Paz',
