@@ -8,6 +8,7 @@ Oof, that’s a clunky name, but at least it’s descriptive.
 This is a **plugin** for **webpack** which reduces **data** for **moment-timezone**.
 
 - [Why is this needed?](#why-is-this-needed)
+    - [Project status](#project-status)
     - [Example](#example)
     - [⚠️ Make sure you know what you’re doing ❗️️](#️-make-sure-you-know-what-youre-doing-️️)
 - [Usage](#usage)
@@ -37,6 +38,10 @@ Even if you configure Moment Timezone to use a custom data bundle at run-time, t
 This plugin allows you to configure which time zone data you want. Any unwanted data is then automatically stripped from the compiled JS bundle at build time.
 
 Use it in combination with the [`moment-locales-webpack-plugin`][moment-webpack] to further reduce the compiled JS bundle size.
+
+### Project status
+
+As of late 2020, the Moment and Moment Timezone projects are [in maintenance-only mode][moment-project-status]. But they are still getting occasional updates, especially for new time zone data. This plugin will be maintained as long as both webpack and Moment Timezone are maintained.
 
 ### Example
 
@@ -212,6 +217,7 @@ const plugin = new MomentTimezoneDataPlugin({
 [badge-ci-img]:  https://github.com/gilmoreorless/moment-timezone-data-webpack-plugin/workflows/Tests/badge.svg
 
 [iso3166]: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+[moment-project-status]: https://momentjs.com/docs/#/-project-status/
 [moment-tz]: https://momentjs.com/timezone/
 [moment-tz-filter]: http://momentjs.com/timezone/docs/#/data-utilities/filter-link-pack/
 [moment-tz-zfc]: https://momentjs.com/timezone/docs/#/using-timezones/getting-country-zones/
