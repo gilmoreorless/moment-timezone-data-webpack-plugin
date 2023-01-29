@@ -23,6 +23,7 @@ This is a **plugin** for **webpack** which reduces **data** for **moment-timezon
     - [Limited data for a set of zones (single regular expression)](#limited-data-for-a-set-of-zones-single-regular-expression)
     - [Limited data for a set of zones (array of values)](#limited-data-for-a-set-of-zones-array-of-values)
     - [Limited data for a set of countries](#limited-data-for-a-set-of-countries)
+- [How zone links are handled](#how-zone-links-are-handled)
 - [License](#license)
 
 ## Why is this needed?
@@ -206,6 +207,25 @@ const plugin = new MomentTimezoneDataPlugin({
 });
 ```
 
+## How zone links are handled
+
+Moment Timezone has the concept of zone links, which are simple aliases from one zone name to another. These roughly match the `Zone` and `Link` definitions in the underlying [IANA time zone database][tzdb] files. (But they don't _exactly_ match the tzdb links, for [complicated reasons][moment-tz-link-bugs].)
+
+This plugin will automatically include linked zones in some circumstances:
+
+1. The `matchZones` option will include only zones that match the provided value(s). If a zone is defined in Moment Timezone as a link, then the zone it points to is also included.
+2. The `matchCountries` option chooses which zones are included based on the countries data provided by Moment Timezone.
+    1. Those entries originally come from the [`zone.tab`][tzdb-zonetab] and [`zone1970.tab`][tzdb-zone1970tab] files in the IANA time zone database.
+    2. As with `matchZones`, there is some link handling here, but only if the links are found in that primary `countries` list.
+3. If an included zone has other links pointing to it, those links _won't_ be included. This was done because some zones have many, many links (e.g. `America/Puerto_Rico` has 20 links pointing to it). This has become more prevalent in recent years as the tzdb has been merging many zones together across country boundaries.
+
+For example, the zone `US/Eastern` is a backwards-compatibility link to `America/New_York`. Because it's a deprecated name, `US/Eastern` doesn't appear in the `zone*.tab` files, but `America/New_York` does. Therefore:
+
+* Using `matchZones: 'US/Eastern'` will include `US/Eastern` **and** `America/New_York`.
+* Using `matchZones: 'America/New_York` will include **only** `America/New_York`.
+* Using `matchCountries: 'US'` will include `America/New_York`, `America/Detroit`, `America/Los_Angeles`, etc., but will **not** include `US/Eastern`.
+
+
 ## License
 
 [MIT License © Gilmore Davidson](LICENSE)
@@ -220,9 +240,13 @@ const plugin = new MomentTimezoneDataPlugin({
 [moment-project-status]: https://momentjs.com/docs/#/-project-status/
 [moment-tz]: https://momentjs.com/timezone/
 [moment-tz-filter]: http://momentjs.com/timezone/docs/#/data-utilities/filter-link-pack/
+[moment-tz-link-bugs]: https://github.com/moment/moment-timezone/issues/835
 [moment-tz-zfc]: https://momentjs.com/timezone/docs/#/using-timezones/getting-country-zones/
 [moment-webpack]: https://github.com/iamakulov/moment-locales-webpack-plugin
 [npm]: https://www.npmjs.com/
 [options]: #plugin-options
+[tzdb]: https://www.iana.org/time-zones
+[tzdb-zonetab]: https://data.iana.org/time-zones/data/zone.tab
+[tzdb-zone1970tab]: https://data.iana.org/time-zones/data/zone1970.tab
 [webpack]: https://webpack.js.org/
 [yarn]: https://yarnpkg.com/
