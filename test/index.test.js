@@ -252,10 +252,10 @@ describe('usage', () => {
       // https://github.com/moment/moment-timezone/issues/835
       it('includes data from links referenced by a country code', async () => {
         const { data } = await buildWebpack({
-          matchCountries: 'UM'
+          matchCountries: 'TV'
         });
-        assert.deepStrictEqual(zoneNames(data), ['Pacific/Honolulu', 'Pacific/Pago_Pago', 'Pacific/Tarawa']);
-        assert.deepStrictEqual(linkNames(data), ['Pacific/Midway', 'Pacific/Wake']);
+        assert.deepStrictEqual(zoneNames(data), ['Pacific/Tarawa']);
+        assert.deepStrictEqual(linkNames(data), ['Pacific/Funafuti']);
       });
     }
 
