@@ -242,10 +242,10 @@ describe('usage', () => {
       it('returns only zones matching matchCountries AND matchZones', async () => {
         const { data } = await buildWebpack({
           matchCountries: 'AU',
-          matchZones: /\/\w{5}$/, // 5-letter city name
+          matchZones: /\/\w{6}$/, // 5-letter city name
         });
         assert.deepStrictEqual(countryCodes(data), ['AU']);
-        assert.deepStrictEqual(zoneNames(data), ['Australia/Eucla', 'Australia/Perth']);
+        assert.deepStrictEqual(zoneNames(data), ['Australia/Darwin', 'Australia/Hobart', 'Australia/Sydney']);
         assert.ok(linkNames(data).length === 0);
       });
 
