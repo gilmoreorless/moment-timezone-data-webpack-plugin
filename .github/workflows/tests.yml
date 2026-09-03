@@ -11,11 +11,11 @@ jobs:
     name: Linting
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v7
       with:
-        node-version: 16
+        node-version: lts/*
         cache: yarn
     - run: yarn --frozen-lockfile
     - run: yarn run lint
@@ -26,15 +26,19 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node: [12, 14, 16, 18]
+        node-version:
+          - latest
+          - lts/*
+          - lts/-1
+          - lts/-2 # Probably EOL depending on release schedules, but still good to test
         # Only run one Node version on Windows
         include:
           - os: windows-latest
-            node: 16
+            node: lts/*
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
     - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node }}
         cache: yarn
@@ -46,11 +50,11 @@ jobs:
     name: Regression testing
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v7
       with:
-        node-version: 16
+        node-version: lts/*
         cache: yarn
     - run: yarn add -D moment-timezone@0.5.0
     - run: yarn test
@@ -60,12 +64,11 @@ jobs:
     name: Webpack v4 testing
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
     - name: Use Node.js
-      uses: actions/setup-node@v3
-      # NOTE: webpack v4 doesn't work properly with Node 17+
+      uses: actions/setup-node@v7
       with:
-        node-version: 16
+        node-version: lts/*
         cache: yarn
     - run: yarn add -D webpack@4
     - run: yarn test
