@@ -93,7 +93,7 @@ describe('usage', () => {
   const cacheDir = findCacheDir({ name: 'moment-timezone-data-webpack-plugin' });
 
   beforeEach(() => {
-    del.sync(cacheDir);
+    del.deleteSync(cacheDir);
   });
 
   describe('matchZones option', () => {

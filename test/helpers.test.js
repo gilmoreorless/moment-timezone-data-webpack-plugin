@@ -111,8 +111,8 @@ describe('cacheDir', () => {
   const customDir = findCacheDir({ name: 'custom-name' });
 
   beforeEach(() => {
-    del.sync(defaultDir);
-    del.sync(customDir);
+    del.deleteSync(defaultDir);
+    del.deleteSync(customDir);
   });
 
   it('creates a new directory in an auto-generated location', () => {
@@ -126,7 +126,7 @@ describe('cacheDir', () => {
   });
 
   afterEach(() => {
-    del.sync(defaultDir);
-    del.sync(customDir);
+    del.deleteSync(defaultDir);
+    del.deleteSync(customDir);
   });
 });
